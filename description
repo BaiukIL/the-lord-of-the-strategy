@@ -1,0 +1,123 @@
+    The game is based on race concept. At first player chooses a Race from list:
+    - Elf
+    - Orc
+    - Dwarf
+and creates empire of this race.
+------------------------------------------------------------------------------------------------------------------------
+    Problem: how to structure empires?
+------------------------------------------------------------------------------------------------------------------------
+    Creating empire looks like abstract factory pattern because once player has chosen race
+he can't change it in the future. All empires have identical interface like:
+
+    Empire:
+        - Cities:
+            - Buildings (implementation depends on race):
+                ...
+        - Army (implementation depends on race):
+            ...
+
+Nevertheless, City and Army also have equal interface for every race and its implementation does not depend on last one.
+Differences starts in Buildings and Army. Thus, using abstract factory would force us to copy Empire and City interfaces
+for each race. Something like:
+
+    class RaceAbstractFactory:
+        def create(race):
+            if race is Dwarf:
+                return DwarfEmpire()
+            elif race is Elf:
+                return ElfEmpire()
+            elif race is Orc:
+                return OrcEmpire()
+
+    class Empire:
+        methods ...
+        def create_city() - abstract
+
+    class ElfEmpire(Empire):
+        the same methods without any difference in realization...
+        def create_city():
+            self.cities.append(ElfCity())
+
+    class OrcEmpire(Empire):
+        the same methods without any difference in realization...
+        def create_city():
+            self.cities.append(OrcCity())
+
+    class DwarfEmpire(Empire):
+        the same methods without any difference in realization...
+        def create_city():
+            self.cities.append(DwarfCity())
+
+    ...
+
+    class City:
+        methods ...
+        def build() - abstract
+
+    class ElfCity(City)
+        the same methods without any difference in realization...
+        def build():
+            self.buildings.append(ElfBuilding())
+
+    class OrcCity(City)
+        the same methods without any difference in realization...
+        def build():
+            self.buildings.append(OrcBuilding())
+
+    class DwarfCity(City)
+        the same methods without any difference in realization...
+        def build():
+            self.buildings.append(DwarfBuilding())
+
+    ...
+
+    It seems to be bad idea because code is duplicated too much without need. Moreover, if we want to add new race
+(we would) in the game, we have to add new line of abstraction! Than more methods Empire and City have
+than more code is duplicated in new line.
+------------------------------------------------------------------------------------------------------------------------
+Solution:
+I've decided to save race as field and use abstract factory at lower level - at the place differences
+do begin. (See next RacesBuildingFactory)
+========================================================================================================================
+    OK, there's only one Empire class in game that have "cities" (array of City objects) and "army" fields.
+Consider City. It has "buildings" field (array of "Building").
+------------------------------------------------------------------------------------------------------------------------
+    Problem: how to make city of exact race to create buildings in accordance with its race?
+------------------------------------------------------------------------------------------------------------------------
+    Once player has chosen concrete empire he must not have an ability to create other races' stuff.
+------------------------------------------------------------------------------------------------------------------------
+    Solution: make a "factory" field which is initialized with factory of exact race during the city's construction.
+There are many races with many different realizations of buildings...
+ABSTRACT FACTORY is what we need.
+RaceBuildingFactory is abstract factory that returns factory according to race.
+
+        # abstract factory of races' factories
+    class RaceBuildingFactory:
+        - build_barrack
+        - build_mine
+        - build_wall
+        ...
+
+
+    # factory of Elves' buildings
+    class ElfBuildingFactory(RaceBuildingFactory):
+        exact realization of "building" methods
+
+    # factory of Orcs' buildings
+    class OrcBuildingFactory(RaceBuildingFactory):
+        exact realization of "building" methods
+
+
+    # factory of Dwarfs' buildings
+    class DwarfBuildingFactory(RaceBuildingFactory):
+        exact realization of "building" methods
+
+    Using of abstract factory in this case is justified because there are no redundant abstraction levels that we saw
+in previous case. Indeed, race_building_factory's "build"-method calls final object's constructor (DwarfMine for example)
+directly, without referring to any intermediate classes. This pattern also allows us to handle with code generalized,
+via base class (e. g. Wall for ElfWall, OrcWall or DwarfWall) by separating construction from realization.
+========================================================================================================================
+    What is about the very Buildings?
+    Barrack. Barrack is a FACTORY of units. The only way units can be created is to be produced from barrack. Elf barrack
+    produces Elf units Dwarf barrack - Dwarf units and etc.
+    Mine. Mine produces resources for building Buildings and creating units.
