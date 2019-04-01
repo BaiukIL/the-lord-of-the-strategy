@@ -1,20 +1,14 @@
 import building_factory
-import race
+import races
 
 
 class City:
-    def __init__(self, _race, name):
+    def __init__(self, _race, name, empire):
         self.race = _race
         self.name = name
+        self.master_empire = empire
         self.buildings = list()
-        if self.race is race.Elf:
-            self.factory = building_factory.ElfBuildingFactory()
-        elif self.race is race.Orc:
-            self.factory = building_factory.OrcBuildingFactory()
-        elif self.race is race.Dwarf:
-            self.factory = building_factory.DwarfBuildingFactory()
-        else:
-            raise Exception("Unknown race: {}".format(race))
+
 
     def info(self):
         print("City race: {}".format(self.race.__name__))
@@ -26,11 +20,14 @@ class City:
             for building in self.buildings:
                 print(" - {}".format(building.__class__.__name__))
 
-    def build_barrack(self, strength):
-        self.buildings.append(self.factory.build_barrack(strength))
+    def build_barrack(self):
+        self.buildings.append(self.factory.build_barrack())
 
     def build_mine(self, strength):
         self.buildings.append(self.factory.build_mine(strength))
 
     def build_wall(self, strength):
         self.buildings.append(self.factory.build_wall(strength))
+
+    def remove_building(self, building):
+        self.buildings.remove(building)

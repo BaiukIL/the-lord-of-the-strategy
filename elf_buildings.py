@@ -1,19 +1,23 @@
 import building
+import unit
 
 
 # fabric of elf units
 class ElfBarrack(building.Barrack):
-    def __init__(self, strength):
-        building.Barrack.__init__(self, strength)
-
     def create_scout(self):
-        return
+        scout = unit.Unit(1, 1)
+        # elf scout creation
+        self.add_unit_to_army(scout)
 
     def create_builder(self):
-        return
+        builder = unit.Unit(1, 1)
+        # elf builder creation
+        self.add_unit_to_army(builder)
 
     def create_warrior(self):
-        return
+        warrior = unit.Unit(1, 1)
+        # elf warrior creation
+        self.add_unit_to_army(warrior)
 
 
 class ElfMine(building.Mine):

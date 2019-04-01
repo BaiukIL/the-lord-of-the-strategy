@@ -1,3 +1,6 @@
+from abc import abstractmethod
+
+
 class Health:
     def __init__(self, health):
         self.health = health
@@ -15,5 +18,6 @@ class Health:
     def is_alive(self):
         return self.health > 0
 
+    @abstractmethod
     def _destroy(self):
-        raise NotImplementedError
+        pass

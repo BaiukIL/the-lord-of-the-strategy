@@ -1,6 +1,5 @@
 class Race:
-    def skill(self):
-        raise NotImplementedError
+    pass
 
 
 class Elf(Race):

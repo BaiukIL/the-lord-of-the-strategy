@@ -1,23 +1,40 @@
 import elf_buildings
 import orc_buildings
 import dwarf_buildings
+from abc import abstractmethod
+
+
+class ElfDirector:
+    def create_barrack(self):
+        pass
+
+    def create_
+
+
+class ElfBuilder:
+    def
 
 
 # abstract factory of races' factories
 class RaceBuildingFactory:
+    @abstractmethod
     def build_barrack(self, strength):
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def build_mine(self, strength):
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def build_wall(self, strength):
-        raise NotImplementedError
+        pass
 
 
 # factory of Elves' buildings
 class ElfBuildingFactory(RaceBuildingFactory):
     def build_barrack(self, strength):
+        elf_builder = ElfBuilder()
+        director = ElfDirector(elf_builder)
         return elf_buildings.ElfBarrack(strength)
 
     def build_mine(self, strength):

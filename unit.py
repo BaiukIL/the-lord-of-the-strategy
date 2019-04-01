@@ -2,7 +2,7 @@ import health
 import speed
 import prototype
 import logging
-import race
+import races
 
 
 class Unit(health.Health, speed.Speed, prototype.Prototype):
@@ -28,11 +28,11 @@ class Warrior(Unit):
     pass
 
 
-class Miner(Unit):
+class Builder(Unit):
     pass
 
 
-class ElfUnit(Unit, race.Elf):
+class ElfUnit(Unit, races.Elf):
     def __init__(self, _health, _speed):
         Unit.__init__(self, _health, _speed)
 
@@ -40,7 +40,7 @@ class ElfUnit(Unit, race.Elf):
         self.health *= 2
 
 
-class OrcUnit(Unit, race.Orc):
+class OrcUnit(Unit, races.Orc):
     def __init__(self, _health, _speed):
         Unit.__init__(self, _health, _speed)
 
@@ -48,7 +48,7 @@ class OrcUnit(Unit, race.Orc):
         self.speed *= 2
 
 
-class DwarfUnit(Unit, race.Dwarf):
+class DwarfUnit(Unit, races.Dwarf):
     def __init__(self, _health, _speed):
         Unit.__init__(self, _health, _speed)
 
