@@ -1,82 +1,37 @@
-import logging
+import races
 
 
 class Army:
-    def __init__(self, race, empire):
-        self.race = race
+    def __init__(self, empire):
         self.master_empire = empire
-        self.troops = list()
+        self.units = list()
 
     def info(self):
-        print("Army race: {}".format(self.race.__name__))
-        print("Army units:")
-        for troop in self.troops:
-            for unit in troop.get_all_units():
-                print(" - {}".format(unit))
+        print("Army's race: {}".format(self.what_race()))
+        print("Army consists of:")
+        for unit in self.units:
+            print(' - {}'.format(unit.__class__.__name__))
 
-    def recruit(self, unit):
-        troop = ArmyComposite()
-        troop.add(ArmyLeaf(unit))
-        self.troops.append(troop)
-        logging.info("{} has joined to {}Empire army".format(troop, self.race.__name__))
+    def recruit_unit(self, unit):
+        if unit not in self.units:
+            self.units.append(unit)
+        else:
+            raise KeyError("Unit: {} has already exists in the army {}".format(unit, self.__class__.__name__))
 
-    def group_selected(self, troop, other_troop):
-        troop.add(other_troop)
-        self.troops.remove(other_troop)
-
-
-# Composite pattern
-class ArmyComponent:
-    def get_all_units(self):
-        pass
-
-    def size(self):
-        pass
-
-    def is_compound(self):
-        pass
+    def remove_unit(self, unit):
+        if unit in self.units:
+            self.units.remove(unit)
+        else:
+            raise KeyError("No such unit: {} in the army {}".format(unit, self.__class__.__name__))
 
 
-class ArmyComposite(ArmyComponent):
-    def __init__(self):
-        self.groups = list()
-
-    def add(self, group):
-        self.groups.append(group)
-
-    def remove(self, element):
-        for group in self.groups:
-            if group is element:
-                self.groups.remove(element)
-                return
-            if group.is_compound():
-                group.remove()
-
-    def get_all_units(self):
-        total = list()
-        for subgroup in self.groups:
-            total.extend(subgroup.get_all_units())
-        return total
-
-    def size(self):
-        result = 0
-        for subgroup in self.groups:
-            result += subgroup.size()
-        return result
-
-    def is_compound(self):
-        return True
+class ElfArmy(Army, races.Elves):
+    pass
 
 
-class ArmyLeaf(ArmyComponent):
-    def __init__(self, obj):
-        self.obj = obj
+class OrcArmy(Army, races.Orcs):
+    pass
 
-    def get_all_units(self):
-        return self.obj
 
-    def size(self):
-        return 1
-
-    def is_compound(self):
-        return False
+class DwarfArmy(Army, races.Dwarfs):
+    pass

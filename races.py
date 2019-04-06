@@ -1,14 +1,23 @@
+elves = 'elves'
+orcs = 'orcs'
+dwarfs = 'dwarfs'
+
+
 class Race:
-    pass
+    def what_race(self):
+        raise NotImplementedError
 
 
-class Elf(Race):
-    pass
+class Elves(Race):
+    def what_race(self):
+        return elves
 
 
-class Orc(Race):
-    pass
+class Orcs(Race):
+    def what_race(self):
+        return orcs
 
 
-class Dwarf(Race):
-    pass
+class Dwarfs(Race):
+    def what_race(self):
+        return dwarfs
