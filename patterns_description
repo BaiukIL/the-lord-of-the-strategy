@@ -69,10 +69,10 @@ Empire.
     resolves into the first problem of storing object as a field; decorator pattern resolves into
     the second case).
 ------------------------------------------------------------------------------------------------------------------------
-    Solution: I've decided to choose the last solution (even though it leads to copy-and-paste problem) because
+    Solution: I've decided to choose the first one because
     it makes code more explicit and it is unnecessary to rewrite previous code in case of addition a new race into the game.
     In this case, to structure empires, we can make an (ABSTRACT) FACTORY of empires - EmpireFactory.
-    When players wants to create empire of a specific race,he asks it from the factory.
+    When player wants to create empire of a specific race, he asks it from the factory.
     It allows us not to worry about compatibility of empire's objects. Also we can interact
     with empires, cities, armies without binding to its implementations (because they have abstract base classes)*.
 
@@ -149,6 +149,22 @@ Army.
 ------------------------------------------------------------------------------------------------------------------------
 ========================================================================================================================
 
+Bridge.
+It comes into use when we want to separate abstraction and realization. All connections are on the abstraction level and I want
+realizations will be able to change in the future (for example, if I want to rewrite game onto another framework).
+However, it is not good idea to make "realization" field for every entity, for in this case it cannot be used in pygame
+object structures (like pygame.sprite.Group), which are very useful. It is impossible because
+these structures can only deal with objects derived from pygame.sprite.Sprite. Since my abstractions are not derived from
+this class they cannot be used in such structures. Thus bridge pattern as composition of entities is not suitable, but what
+about using inheritance instead of composition? The idea of bridge pattern will be preserved (I still can set abstraction and
+realization apart using another inheritance), and it allows us to use pygame object structures because every object IS
+DERIVED from pygame.sprite.Sprite.
+How do I do this inheritance? There is a GameObject class which is inherited from pygame.sprite.Sprite and is responsible
+for connection between abstraction and realization. It is the only place I have to track any problems with this connection.
+All game entities which are supposed to have realization are just inherited from this one.
+To sum up, we changed composition in bridge pattern (because it is impossible in our case) to inheritance saving the
+idea of bridge pattern.
+
 
 Other words.
 1. In some harmless cases I use exceptions which are not supposed to be caught. It looks like self-destruction
@@ -158,6 +174,16 @@ anti-pattern, but I will remove such things in the future. Now it's rather usefu
 4. By the moment I wrote this code for the first review, I've realised that first way (mentioned on 26th line)
 seemed to be better than chosen one (because it does not need as many copy-and-paste code as second does).
 
-Questions:
-1. Is first solution (line 26) better than this one?
-2. Is it OK to do all the tests in one file or they should be located apart?
+Think:
+1. city.py : 13 : self.fabric = fabric.Manufacture().create_fabric(self)
+    Is it ok to delegate buildings addition to fabric? It makes these modules strongly-connected what is not good.
+    However, if we make building addition city's duty, we have to wrap all fabric's calls in functions
+(which will add factory-builded building to city._buildings). It makes code bigger.
+    The third way is to use Observer pattern for such cases. but... is it justified to use Observer which connects
+just two objects? There is no problem if we uses Observer to inform city about building events. (by the way thus
+we get rid of "city" in constructor (otherwise what is the sense in using Observer?) so building does not know
+what city it belongs to). Problem occurs when we creates units this way. How to inform ARMY about UNIT creation???
+
+2. How to be with function annotations? It's good idea to use them. However, functions usually returns objects
+from other modules, so to make annotation it's necessary to import modules of such modules which makes program
+strongly-connected (sometimes it even leads to mutual import)
