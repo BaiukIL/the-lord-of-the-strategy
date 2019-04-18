@@ -8,8 +8,8 @@ class EmpireError(Exception):
 class Empire(gameobject.GameObject):
     def __init__(self, race, name: str = 'DefaultEmpireName'):
         gameobject.GameObject.__init__(self, race=race)
-        self._name = name
         self.army = army.Army(empire=self)
+        self._name = name
         self._cities = dict()
 
     @property

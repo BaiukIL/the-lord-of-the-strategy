@@ -3,6 +3,7 @@ from abstraction.units import scout, warrior
 from abstraction.units import builder
 from abstraction.buildings import base_building
 from abc import ABC, abstractmethod
+from images import image_base
 
 
 # Factory & Template Method ???
@@ -37,32 +38,32 @@ class Barrack(base_building.Building, ABC):
 
 class ElvesBarrack(Barrack):
     def _create_builder(self) -> builder.Builder:
-        return builder.ElfBuilder(race=self.race, health=4, speed=2)
+        return builder.ElfBuilder(race=self.race, health=4, speed=2, image_file=image_base.ELVES_BUILDER)
 
     def _create_scout(self) -> scout.Scout:
-        return scout.ElfScout(race=self.race, health=6, speed=2)
+        return scout.ElfScout(race=self.race, health=6, speed=2, image_file=image_base.ELVES_SCOUT)
 
     def _create_warrior(self) -> warrior.Warrior:
-        return warrior.ElfWarrior(race=self.race, health=6, speed=1, damage=1)
+        return warrior.ElfWarrior(race=self.race, health=6, speed=1, damage=1, image_file=image_base.ELVES_WARRIOR)
 
 
 class OrcsBarrack(Barrack):
     def _create_builder(self) -> builder.Builder:
-        return builder.OrcBuilder(race=self.race, health=2, speed=2)
+        return builder.OrcBuilder(race=self.race, health=2, speed=2, image_file=image_base.ORCS_BUILDER)
 
     def _create_scout(self) -> scout.Scout:
-        return scout.OrcScout(race=self.race, health=3, speed=2)
+        return scout.OrcScout(race=self.race, health=3, speed=2, image_file=image_base.ORCS_SCOUT)
 
     def _create_warrior(self) -> warrior.Warrior:
-        return warrior.OrcWarrior(race=self.race, health=3, speed=1, damage=1)
+        return warrior.OrcWarrior(race=self.race, health=3, speed=1, damage=1, image_file=image_base.ORCS_WARRIOR)
 
 
 class DwarfsBarrack(Barrack):
     def _create_builder(self) -> builder.Builder:
-        return builder.DwarfBuilder(race=self.race, health=2, speed=2)
+        return builder.DwarfBuilder(race=self.race, health=2, speed=2, image_file=image_base.DWARFS_BUILDER)
 
     def _create_scout(self) -> scout.Scout:
-        return scout.DwarfScout(race=self.race, health=3, speed=2)
+        return scout.DwarfScout(race=self.race, health=3, speed=2, image_file=image_base.DWARFS_SCOUT)
 
     def _create_warrior(self) -> warrior.Warrior:
-        return warrior.DwarfWarrior(race=self.race, health=3, speed=1, damage=1)
+        return warrior.DwarfWarrior(race=self.race, health=3, speed=1, damage=1, image_file=image_base.DWARFS_WARRIOR)

@@ -33,3 +33,8 @@ class RealObject(GameObject, pygame.sprite.Sprite, ABC):
         GameObject.__init__(self, race)
         self.image = pygame.image.load(image_file)
         self.rect = self.image.get_rect()
+
+    def click_react(self) -> pygame.Surface:
+        selected = pygame.Surface((100, 100))
+        selected.fill((100, 0, 0))
+        return selected

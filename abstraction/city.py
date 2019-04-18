@@ -1,5 +1,6 @@
 from abstraction import gameobject
 from abstraction.buildings import fabric
+from images import image_base
 
 
 class CityError(Exception):
@@ -8,7 +9,7 @@ class CityError(Exception):
 
 class City(gameobject.RealObject):
     def __init__(self, name, empire):
-        gameobject.RealObject.__init__(self, race=empire.race, image_file="images/city.jpg")
+        gameobject.RealObject.__init__(self, race=empire.race, image_file=image_base.CITY)
         self._name = name
         self._master_empire = empire
         self._fabric = fabric.Manufacture().create_fabric(self)

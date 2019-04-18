@@ -4,8 +4,8 @@ from abc import ABC
 
 
 class Building(gameobject.RealObject, health_mod.Health, ABC):
-    def __init__(self, health, city):
-        gameobject.RealObject.__init__(self, race=city.race)
+    def __init__(self, health, city, image_file):
+        gameobject.RealObject.__init__(self, race=city.race, image_file=image_file)
         health_mod.Health.__init__(self, health=health)
         self._master_city = city
         # bridge from building to race
