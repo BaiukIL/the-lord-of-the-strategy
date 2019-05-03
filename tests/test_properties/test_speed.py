@@ -1,5 +1,5 @@
 import unittest
-from abstraction.object_properties import speed
+from entities.object_properties import speed
 
 
 class TestHealth(unittest.TestCase):

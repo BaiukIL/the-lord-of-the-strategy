@@ -11,7 +11,7 @@ Empire.
 ------------------------------------------------------------------------------------------------------------------------
     Problem: How to structure empires?
 ------------------------------------------------------------------------------------------------------------------------
-    Think: The idea is that empires are almost similar due to game balance. Thus we have like "common empire" which
+    Think: The idea is that empires are almost similar due to game balance. Thus we have kind of "common empire" which
     contains basic game interface (see attached .png file "Empire hierarchy") and all specific races merely differ in
     rendering and in few unique methods. The concept of fabrics
     (and sound reason) obliges us to keep every race's line separately. Indeed, since player created orc empire

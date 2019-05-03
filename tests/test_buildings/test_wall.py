@@ -1,6 +1,6 @@
 import unittest
-from abstraction import races, empire, city
-from abstraction.buildings import wall
+from entities import races, empire, city
+from entities.buildings import wall
 
 
 class TestBarrack(unittest.TestCase):

@@ -1,4 +1,4 @@
-from abstraction.buildings import base_building
+from entities.buildings import base_building
 
 
 class Wall(base_building.Building):

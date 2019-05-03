@@ -1,5 +1,5 @@
-from abstraction.object_properties import health as health_mod
-from abstraction import gameobject
+from entities.object_properties import health as health_mod
+from entities import gameobject
 from abc import ABC
 
 

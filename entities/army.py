@@ -1,7 +1,7 @@
 """Composite & Iterator & Visitor"""
 
-from abstraction import gameobject
-from abstraction.units import unit as unit_mod
+from entities import gameobject
+from entities.units import unit as unit_mod
 import collections
 from abc import ABC, abstractmethod
 

@@ -1,7 +1,7 @@
-from abstraction.buildings import barrack, mine, wall
-from abstraction import races
+from entities.buildings import barrack, mine, wall
+from entities import races
 from abc import ABC, abstractmethod
-from images import image_base
+from images import image
 
 
 # Abstract Factory
@@ -32,32 +32,32 @@ class Fabric(ABC):
 
 class ElvesFabric(Fabric):
     def build_barrack(self) -> barrack.Barrack:
-        return barrack.ElvesBarrack(health=10, city=self._master_city, image_file=image_base.ELVES_BARRACK)
+        return barrack.ElvesBarrack(health=10, city=self._master_city, image_file=image.ELVES_BARRACK)
 
     def build_mine(self) -> mine.Mine:
-        return mine.Mine(health=5, city=self._master_city, image_file=image_base.ELVES_MINE)
+        return mine.Mine(health=5, city=self._master_city, image_file=image.ELVES_MINE)
 
     def build_wall(self) -> wall.Wall:
-        return wall.Wall(health=3, city=self._master_city, image_file=image_base.ELVES_WALL)
+        return wall.Wall(health=3, city=self._master_city, image_file=image.ELVES_WALL)
 
 
 class OrcsFabric(Fabric):
     def build_barrack(self) -> barrack.Barrack:
-        return barrack.OrcsBarrack(health=10, city=self._master_city, image_file=image_base.ORCS_BARRACK)
+        return barrack.OrcsBarrack(health=10, city=self._master_city, image_file=image.ORCS_BARRACK)
 
     def build_mine(self) -> mine.Mine:
-        return mine.Mine(health=5, city=self._master_city, image_file=image_base.ORCS_MINE)
+        return mine.Mine(health=5, city=self._master_city, image_file=image.ORCS_MINE)
 
     def build_wall(self) -> wall.Wall:
-        return wall.Wall(health=3, city=self._master_city, image_file=image_base.ORCS_WALL)
+        return wall.Wall(health=3, city=self._master_city, image_file=image.ORCS_WALL)
 
 
 class DwarfsFabric(Fabric):
     def build_barrack(self) -> barrack.Barrack:
-        return barrack.DwarfsBarrack(health=15, city=self._master_city, image_file=image_base.DWARFS_BARRACK)
+        return barrack.DwarfsBarrack(health=15, city=self._master_city, image_file=image.DWARFS_BARRACK)
 
     def build_mine(self) -> mine.Mine:
-        return mine.Mine(health=8, city=self._master_city, image_file=image_base.DWARFS_MINE)
+        return mine.Mine(health=8, city=self._master_city, image_file=image.DWARFS_MINE)
 
     def build_wall(self) -> wall.Wall:
-        return wall.Wall(health=5, city=self._master_city, image_file=image_base.DWARFS_WALL)
+        return wall.Wall(health=5, city=self._master_city, image_file=image.DWARFS_WALL)

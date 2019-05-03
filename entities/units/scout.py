@@ -1,4 +1,4 @@
-from abstraction.units import unit
+from entities.units import unit
 
 
 class Scout(unit.Unit):

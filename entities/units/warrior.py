@@ -1,5 +1,5 @@
-from abstraction.units import unit
-from abstraction.object_properties import damage as damage_mod
+from entities.units import unit
+from entities.object_properties import damage as damage_mod
 
 
 class Warrior(unit.Unit, damage_mod.Damage):

@@ -1,4 +1,4 @@
-from abstraction import gameobject, army, city
+from entities import gameobject, army, city
 
 
 class EmpireError(Exception):

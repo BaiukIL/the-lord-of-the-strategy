@@ -1,64 +1,52 @@
 import pygame
-from realization import gameconfig, player as player_mod
-from abstraction import empire, races
-
-
-def list_of_clicked(group: pygame.sprite.Group, mouse_pos: tuple) -> list:
-    clicked = []
-    for obj in group:
-        if obj.rect.collidepoint(mouse_pos):
-            clicked.append(obj)
-    return clicked
+from pygame_realization import interface as interface_mod, base_handler
+from configs import game_config, interface_config
+from entities import empire, races
+from images import image
 
 
 def play_game():
-    world_map = pygame.Surface((6000, 3000))
-    world_map.fill((0, 150, 0))
+    world_map = pygame.transform.scale(pygame.image.load(game_config.BACKGROUND), (5500, 5500))
 
-    player = player_mod.Player(world_map=world_map)
-
-    selected = pygame.Surface((100, 100))
-    selected.set_alpha(0)
+    interface = interface_mod.Interface(world_map)
 
     this_empire = empire.Empire(races.elves)
-    this_empire.set_city("Nre")
-    barrack = this_empire.get_city("Nre").build_barrack()
+    this_empire.set_city("Nevborn")
 
-    # interface = pygame.sprite.Group()
     objects = pygame.sprite.Group()
-
-    # interface.add(selected)
-    objects.add(barrack)
+    objects.add(this_empire.get_city("Nevborn"))
 
     while True:
         mouse_pressed = False
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 quit()
-            if event.type == pygame.MOUSEBUTTONUP:
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pressed = True
             print(event)
+
         key = pygame.key.get_pressed()
-        mouse_pos = (pygame.mouse.get_pos()[0] + player.camera.x, pygame.mouse.get_pos()[1] + player.camera.y)
+        # consider camera position while getting the mouse position
+        mouse_pos = (pygame.mouse.get_pos()[0] + interface.camera.x, pygame.mouse.get_pos()[1] + interface.camera.y)
 
         if mouse_pressed:
-            clicked = list_of_clicked(objects, mouse_pos)
-            if len(clicked) != 0:
-                for obj in clicked:
-                    selected = obj.click_react()
-            else:
-                selected.set_alpha(0)
+            handled = False
+            for obj in objects:
+                if obj.rect.collidepoint(mouse_pos):
+                    interface.handle_object_click(obj.react_click())
+                    handled = True
+            if not handled:
+                interface.handle_no_click()
 
-        player.move(key, mouse_pos)
-
-        world_map.fill((0, 150, 0))
+        interface.camera.move_view(key, mouse_pos)
+        # place objects on map
         objects.draw(world_map)
-
-        screen.blit(world_map, (-player.camera.x, -player.camera.y))
-        screen.blit(selected, (0, 0))
+        # draw interface windows
+        interface.draw_windows(screen)
+        # show screen
         pygame.display.flip()
-
         # cap the framerate
         clock.tick(60)
 
@@ -66,10 +54,13 @@ def play_game():
 if __name__ == '__main__':
     pygame.init()
 
-    screen = pygame.display.set_mode(gameconfig.SCR_SIZE)
+    screen = pygame.display.set_mode(interface_config.SCR_SIZE)
     pygame.display.set_caption("the Lord of the Strategy")
-    icon_surf = pygame.image.load(gameconfig.ICON)
+    icon_surf = pygame.image.load(image.ICON)
     pygame.display.set_icon(icon_surf)
     clock = pygame.time.Clock()
+
+    if not pygame.font.get_init():
+        raise SystemExit("Fonts are out-of-service")
 
     play_game()

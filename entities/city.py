@@ -1,15 +1,22 @@
-from abstraction import gameobject
-from abstraction.buildings import fabric
-from images import image_base
+from entities import gameobject
+from entities.buildings import fabric
+from images import image
+
+import pygame
 
 
 class CityError(Exception):
     pass
 
 
+class Command:
+    def __init__(self):
+        pass
+
+
 class City(gameobject.RealObject):
     def __init__(self, name, empire):
-        gameobject.RealObject.__init__(self, race=empire.race, image_file=image_base.CITY)
+        gameobject.RealObject.__init__(self, race=empire.race, image_file=image.CITY)
         self._name = name
         self._master_empire = empire
         self._fabric = fabric.Manufacture().create_fabric(self)
@@ -49,3 +56,12 @@ class City(gameobject.RealObject):
             self._buildings.remove(building)
         else:
             raise CityError("No such building: {} in {}".format(building.__class__.__name__, self._name))
+
+    def react_click(self) -> (pygame.Surface, list, list):
+        img = self.image.copy()
+        text = ['name: {}'.format(self.name)]
+        commands = [['build wall', self.build_wall, image.ICON],
+                    ['build mine', self.build_mine, image.ICON],
+                    ['build barrack', self.build_barrack, image.ICON],
+                    ['remove building', self.remove_building, image.ICON]]
+        return img, text, commands

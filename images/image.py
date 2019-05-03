@@ -3,11 +3,12 @@ import sys
 
 path = 'images/'
 
-ICON = '{}new_icon.png'.format(path)
-MAP = '{}new_background.jpg'.format(path)
+ICON = '{}icon.jpeg'.format(path)
 POINTER = '{}pointer.jpg'.format(path)
+BACKGROUND = '{}pixel background.jpg'.format(path)
 
-CITY = '{}city.jpg'.format(path)
+
+CITY = '{}/city/city.png'.format(path)
 ELVES_CITY = '{}city.jpg'.format(path)
 ORCS_CITY = '{}city.jpg'.format(path)
 DWARFS_CITY = '{}city.jpg'.format(path)

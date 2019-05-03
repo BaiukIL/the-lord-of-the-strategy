@@ -1,8 +1,8 @@
 import unittest
-from abstraction import races, empire, city
-from abstraction.buildings import barrack
-from abstraction.units import scout, warrior
-from abstraction.units import builder
+from entities import races, empire, city
+from entities.buildings import barrack
+from entities.units import scout, warrior
+from entities.units import builder
 
 
 class TestBarrack(unittest.TestCase):

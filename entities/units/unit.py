@@ -1,6 +1,6 @@
-from abstraction.object_properties import speed as speed_mod
-from abstraction.object_properties import health as health_mod
-from abstraction import gameobject
+from entities.object_properties import speed as speed_mod
+from entities.object_properties import health as health_mod
+from entities import gameobject
 
 
 class Unit(gameobject.RealObject, health_mod.Health, speed_mod.Speed):

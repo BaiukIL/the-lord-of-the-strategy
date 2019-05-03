@@ -1,5 +1,5 @@
 import unittest
-from abstraction import races, empire, army
+from entities import races, empire, army
 
 
 class TestEmpire(unittest.TestCase):

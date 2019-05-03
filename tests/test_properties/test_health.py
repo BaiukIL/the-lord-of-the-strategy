@@ -1,5 +1,5 @@
 import unittest
-from abstraction.object_properties import health
+from entities.object_properties import health
 
 
 # Health, but not abstract (for testing only)

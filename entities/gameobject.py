@@ -1,6 +1,7 @@
-"""Every game object has fields of this class, so every game entity (class) is inherited from this one"""
+"""Every game object has fields of this class, so every game entity is inherited from one of these"""
 
-from abstraction import races
+
+from entities import races
 from abc import ABC, abstractmethod
 import pygame
 
@@ -21,7 +22,8 @@ class GameObject(ABC):
         return self._race
 
     @abstractmethod
-    def info(self): pass
+    def info(self):
+        pass
 
 
 class RealObject(GameObject, pygame.sprite.Sprite, ABC):
@@ -31,10 +33,14 @@ class RealObject(GameObject, pygame.sprite.Sprite, ABC):
     def __init__(self, race, image_file: str):
         pygame.sprite.Sprite.__init__(self)
         GameObject.__init__(self, race)
-        self.image = pygame.image.load(image_file)
+        self.image = pygame.transform.scale(pygame.image.load(image_file), (200, 200))
         self.rect = self.image.get_rect()
 
-    def click_react(self) -> pygame.Surface:
-        selected = pygame.Surface((100, 100))
-        selected.fill((100, 0, 0))
-        return selected
+    @abstractmethod
+    def react_click(self) -> (pygame.Surface, list, list):
+        """Returns image, info text and list of commands
+        player can interact with the object.
+        (*) Every text line is a separate element of list because
+        pygame.font.Font.render() can't handle with `\n`
+        """
+        pass
