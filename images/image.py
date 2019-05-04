@@ -5,8 +5,11 @@ path = 'images/'
 
 ICON = '{}icon.jpeg'.format(path)
 POINTER = '{}pointer.jpg'.format(path)
-BACKGROUND = '{}pixel background.jpg'.format(path)
+MAP = '{}pixel background.jpg'.format(path)
+MINIMAP_FRAME = '{}minimap_frame.jpg'.format(path)
 
+BUILD = '{}build_simple.jpg'.format(path)
+REMOVE = '{}remove_simple.jpg'.format(path)
 
 CITY = '{}/city/city.png'.format(path)
 ELVES_CITY = '{}city.jpg'.format(path)

@@ -1,12 +1,12 @@
 import pygame
-from pygame_realization import interface as interface_mod, base_handler
+from pygame_realization import interface as interface_mod
 from configs import game_config, interface_config
 from entities import empire, races
 from images import image
 
 
 def play_game():
-    world_map = pygame.transform.scale(pygame.image.load(game_config.BACKGROUND), (5500, 5500))
+    world_map = pygame.transform.scale(pygame.image.load(image.MAP), game_config.MAP_SIZE)
 
     interface = interface_mod.Interface(world_map)
 
@@ -20,7 +20,8 @@ def play_game():
         mouse_pressed = False
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            if event.type == pygame.QUIT or \
+                    event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -29,12 +30,22 @@ def play_game():
 
         key = pygame.key.get_pressed()
         # consider camera position while getting the mouse position
-        mouse_pos = (pygame.mouse.get_pos()[0] + interface.camera.x, pygame.mouse.get_pos()[1] + interface.camera.y)
+        mouse_pos = pygame.mouse.get_pos()
 
         if mouse_pressed:
             handled = False
+            if interface.selected.rect.collidepoint(mouse_pos):
+                handled = True
+            if interface.minimap.rect.collidepoint(mouse_pos):
+                handled = True
+            for command in interface.commands:
+                if command.rect.collidepoint(mouse_pos):
+                    interface.handle_interface_click(mouse_pos)
+                    handled = True
             for obj in objects:
-                if obj.rect.collidepoint(mouse_pos):
+                # mouse position with a glance to camera position on the map
+                mouse_global_pos = mouse_pos[0] + interface.camera.x, mouse_pos[0] + interface.camera.y
+                if obj.rect.collidepoint(mouse_global_pos):
                     interface.handle_object_click(obj.react_click())
                     handled = True
             if not handled:

@@ -1,0 +1,88 @@
+    The game is based on race concept. At first player chooses a Race from list:
+        - Elf
+        - Orc
+        - Dwarf
+    and creates empire of this race.
+
+========================================================================================================================
+------------------------------------------------------------------------------------------------------------------------
+    Problem: How to structure empires?
+------------------------------------------------------------------------------------------------------------------------
+    Think: Once player has chosen race he can't change it in the future. Also he must not have an ability to create
+    other races' stuff.
+------------------------------------------------------------------------------------------------------------------------
+    Solution: Make an ABSTRACT FACTORY of empires - EmpireFactory. When players wants to create empire of exact race,
+    he asks it from the factory. It allows us not to worry about compatibility of empire's objects. Also we can interact
+    with empires, cities, armies without binding to its implementations.
+------------------------------------------------------------------------------------------------------------------------
+========================================================================================================================
+
+    Empire has next interface:
+
+    Empire:
+        - Cities:
+            - Buildings:
+                ...
+        - Army:
+            - Units
+
+    It has "cities" (array of "City" objects, which are classified as ElfCity, OrcCity, and DwarfCity) and "army" fields.
+
+
+    City.
+    City has "buildings" field (array of "Building").
+    In order to follow mentioned abstract factory pattern, city should has its own FACTORY which produces buildings of
+    corresponding race. So, there is a "factory" field initialized with factory of exact race during the city's construction.
+    RaceBuildingFactory is abstract factory that returns factory according to race.
+
+    # abstract factory of races' factories
+    class RaceBuildingFactory:
+        - build_barrack
+        - build_mine
+        - build_wall
+        ...
+
+
+    # factory of Elves' buildings
+    class ElfBuildingFactory(RaceBuildingFactory):
+        - exact realization of "building" methods
+
+
+    # factory of Orcs' buildings
+    class OrcBuildingFactory(RaceBuildingFactory):
+        - exact realization of "building" methods
+
+
+    # factory of Dwarfs' buildings
+    class DwarfBuildingFactory(RaceBuildingFactory):
+        - exact realization of "building" methods
+
+
+    Building.
+    What is about the very buildings? Every building is a complex object which is supposed to have a big number of args
+    in constructor.
+
+========================================================================================================================
+------------------------------------------------------------------------------------------------------------------------
+    Problem: How to construct buildings?
+------------------------------------------------------------------------------------------------------------------------
+    Think: So far building can be barrack, mine or wall. It is clear that elves', dwarfs' or orcs' mines, for example,
+    are pretty similar. It suggests that we can build ones using similar functions (these objects can be complex, so using
+    step-by-step functions might be much useful than using a single stacked constructor).
+    In addition, we have created factory of buildings for every race in game. The only thing we need to do is to tell exact
+    factory how to construct every building.
+------------------------------------------------------------------------------------------------------------------------
+    Solution: Use BUILDER pattern. Factory's "build"-methods will act as a DIRECTOR by calling appropriate BUILDER methods
+    for object construction.
+------------------------------------------------------------------------------------------------------------------------
+========================================================================================================================
+
+    1. Barrack is a FACTORY of units. The only way units can be created is to be produced from barrack. Elf barrack
+    produces Elf units, Dwarf barrack - Dwarf units and etc.
+    2. Mine produces resources for designing building and creating units.
+    3. Wall protects city from enemies.
+
+Army.
+
+        Currently, there are ElfArmy, OrcArmy and DwarfArmy in the game. However, they are do not differ from their base
+    class (Army) so far. Thus, it's enough to consider Army class only.

@@ -1,1 +1,7 @@
 1. ImportError
+2. Is it better to create Minimap class than make it from window in interface?
+(Same question to Selected and Command)
+3. How to be with borders? I always have to consider them when draw something on surface.
+From the other side if i store _bordered field I have to remember that I should use draw_image
+instead of image.blit() (bad idea)
+

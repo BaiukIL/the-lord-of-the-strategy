@@ -27,6 +27,7 @@ class GameObject(ABC):
 
 
 class RealObject(GameObject, pygame.sprite.Sprite, ABC):
+
     image: pygame.Surface
     rect: pygame.Rect
 

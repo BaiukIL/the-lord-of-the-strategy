@@ -1,14 +1,15 @@
 import pygame
 from pygame_realization import camera, window, object_click_handler
-from configs import interface_config
+from images import image
+from configs import interface_config, game_config
 
 
-# Mediator
 class Interface:
     """
     Interface is a mediator (its coordinates windows work)
-    which links camera and windows together.
+    which links interface windows together and coordinate its work.
     """
+
     camera: camera.Camera
 
     """
@@ -18,25 +19,44 @@ class Interface:
     selected: window.Window
 
     """
-    List of windows, located in the middle bottom of the screen.
-    Represents commands which selected object has
+    A list of windows which are located in the middle bottom of the screen.
+    Represents commands which selected object has.
     """
-    commands: list
+    commands: pygame.sprite.Group
+
+    """
+    A window which is located in the right bottom of the screen.
+    Shows camera place at the map.
+    """
+    minimap: window.Window
 
     def __init__(self, world_map: pygame.Surface):
         self._map = world_map
-        self.camera = camera.Camera(world_map)
+        self.camera = camera.Camera(world_map.get_rect())
+        self.commands = pygame.sprite.Group()
+
         self.selected = window.Window(interface_config.SELECTED_SIZE)
+        self.selected.rect.bottomleft = (0, interface_config.SCR_HEIGHT)
+        self.selected = window.add_borders(self.selected)
         self.selected.hide()
-        self.commands = list()
+
+        self.minimap = window.Window(interface_config.MINIMAP_SIZE)
+        self.minimap.image.blit(
+            pygame.transform.scale(pygame.image.load(image.MAP), interface_config.MINIMAP_SIZE), (0, 0)
+        )
+        self.minimap.frame = pygame.transform.scale(
+            pygame.image.load(image.MINIMAP_FRAME), interface_config.MINIMAP_FRAME_SIZE
+        )
+        self.minimap.rect.bottomright = interface_config.SCR_SIZE
+        self.minimap.visible(200)
 
     def handle_object_click(self, args: (pygame.Surface, list, list)):
-        self.selected.visible()
+        self.selected.visible(170)
 
         image_handler = object_click_handler.ImageHandler(self.selected)
         text_handler = object_click_handler.TextHandler(self.selected)
         commands_handler = object_click_handler.CommandsHandler(
-            start_pos=[self.selected.rect.right + interface_config.SELECTED_COMMAND_INDENT,
+            start_pos=[self.selected.rect.right + interface_config.SELECTED_TO_COMMAND_INDENT,
                        interface_config.SCR_HEIGHT - interface_config.COMMAND_HEIGHT - 5],
             commands=self.commands
         )
@@ -44,17 +64,28 @@ class Interface:
         image_handler.set_next(text_handler).set_next(commands_handler)
         image_handler.handle(args)
 
+    def handle_interface_click(self, mouse_pos: tuple):
+        pass
+
     def handle_no_click(self):
         self.selected.hide()
         for command in self.commands:
             command.hide()
 
     def draw_windows(self, screen: pygame.Surface):
-        surface_rect = screen.get_rect()
         # make place of camera location visible
         screen.blit(self._map, (-self.camera.x, -self.camera.y))
-        # place `selected` in left bottom corner
-        screen.blit(self.selected, (surface_rect.left, surface_rect.bottom - self.selected.get_rect().height))
-
-        for command in self.commands:
-            screen.blit(command, command.rect.topleft)
+        # place `selected` in the left bottom corner
+        screen.blit(self.selected.image, self.selected.rect.topleft)
+        # draw commands in the middle bottom
+        self.commands.draw(screen)
+        # draw minimap in the right bottom corner
+        self.minimap.image.blit(
+            pygame.transform.scale(pygame.image.load(image.MAP), interface_config.MINIMAP_SIZE), (0, 0)
+        )
+        self.minimap.image.blit(
+            self.minimap.frame,
+            (int(self.camera.x * interface_config.MINIMAP_WIDTH / game_config.MAP_WIDTH),
+             int(self.camera.y * interface_config.MINIMAP_HEIGHT / game_config.MAP_HEIGHT))
+        )
+        screen.blit(self.minimap.image, self.minimap.rect.topleft)

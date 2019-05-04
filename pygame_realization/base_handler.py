@@ -9,11 +9,12 @@ class BaseHandler(ABC):
         self._next = handler
         return handler
 
-    def handle(self, args):
-        self._handle(args)
+    def handle(self, args) -> bool:
+        handled = self._handle(args)
         if self._next is not None:
-            self._next.handle(args[1:])
+            return self._next.handle(args[1:])
+        return handled
 
     @abstractmethod
-    def _handle(self, args):
+    def _handle(self, args) -> bool:
         pass

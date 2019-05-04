@@ -2,16 +2,9 @@ from entities import gameobject
 from entities.buildings import fabric
 from images import image
 
-import pygame
-
 
 class CityError(Exception):
     pass
-
-
-class Command:
-    def __init__(self):
-        pass
 
 
 class City(gameobject.RealObject):
@@ -57,11 +50,11 @@ class City(gameobject.RealObject):
         else:
             raise CityError("No such building: {} in {}".format(building.__class__.__name__, self._name))
 
-    def react_click(self) -> (pygame.Surface, list, list):
+    def react_click(self):
         img = self.image.copy()
         text = ['name: {}'.format(self.name)]
-        commands = [['build wall', self.build_wall, image.ICON],
-                    ['build mine', self.build_mine, image.ICON],
+        commands = [['build wall', self.build_wall, image.BUILD],
+                    ['build mine', self.build_mine, image.REMOVE],
                     ['build barrack', self.build_barrack, image.ICON],
                     ['remove building', self.remove_building, image.ICON]]
         return img, text, commands

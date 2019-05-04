@@ -1,53 +1,59 @@
 import pygame
-from configs import game_config
+from configs import interface_config
 
 
-def border(func):
-    def wrapper(*args, **kwargs):
-        result = func(*args, **kwargs)
-        return result
-    return wrapper
+def add_borders(window: 'Window', borders_size: int = interface_config.BORDERS_SIZE) -> 'Window':
+    """Decorator"""
+    compressed_image = pygame.transform.scale(
+        window.image, (window.image.get_width() - borders_size * 2,
+                       window.image.get_height() - borders_size * 2)
+    )
+    window.image.fill(interface_config.BORDERS_COLOR)
+    window.image.blit(compressed_image, (borders_size, borders_size))
+    return window
 
 
-# State
 class WindowState:
-    def __init__(self, window):
+    """State pattern"""
+    def __init__(self, window: 'Window'):
         self._window = window
 
 
 class HiddenWindowState(WindowState):
     def __init__(self, window):
         super().__init__(window)
-        self._window.set_alpha(0)
+        self._window.image.set_alpha(0)
 
 
 class VisibleWindowState(WindowState):
-    def __init__(self, window):
+    def __init__(self, window, bright: int):
         super().__init__(window)
-        self._window.fill(game_config.BLACK)
-        self._window.set_alpha(150)
+        # self._window.image.fill(game_config.BLACK)
+        self._window.image.set_alpha(bright)
 
 
-class Window(pygame.Surface):
+class Window(pygame.sprite.Sprite):
     """
     Surface superstructure
     """
+
     _state: WindowState
 
-    rect = pygame.Rect(0, 0, 0, 0)
+    image: pygame.Surface
+    rect: pygame.Rect
 
     """
-    Message which appears while player points to the window
+    Message which appears when player points to the window
     """
     _hint_message: str
+    _bordered: bool
 
-    def __init__(self, size: int, message: str = str(), visible: bool = False):
-        super().__init__(size)
+    def __init__(self, size: tuple, message: str = str()):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface(size)
+        self.rect = self.image.get_rect()
         self._hint_message = message
-        if visible:
-            self._state = VisibleWindowState(self)
-        else:
-            self._state = HiddenWindowState(self)
+        self.visible()
 
     def change_state(self, state: WindowState):
         self._state = state
@@ -55,10 +61,5 @@ class Window(pygame.Surface):
     def hide(self):
         self.change_state(HiddenWindowState(self))
 
-    def visible(self):
-        self.change_state(VisibleWindowState(self))
-
-
-class Ability(Window):
-    def _handle_click(self, *args):
-        pass
+    def visible(self, bright: int = 255):
+        self.change_state(VisibleWindowState(self, bright))
