@@ -1,6 +1,7 @@
 from entities import gameobject
 from entities.buildings import fabric
 from images import image
+from configs import game_config
 
 
 class CityError(Exception):
@@ -9,7 +10,7 @@ class CityError(Exception):
 
 class City(gameobject.RealObject):
     def __init__(self, name, empire):
-        gameobject.RealObject.__init__(self, race=empire.race, image_file=image.CITY)
+        gameobject.RealObject.__init__(self, race=empire.race, image_file=image.CITY, size=game_config.CITY_SIZE)
         self._name = name
         self._master_empire = empire
         self._fabric = fabric.Manufacture().create_fabric(self)
@@ -50,9 +51,9 @@ class City(gameobject.RealObject):
         else:
             raise CityError("No such building: {} in {}".format(building.__class__.__name__, self._name))
 
-    def react_click(self):
+    def handle(self):
         img = self.image.copy()
-        text = ['name: {}'.format(self.name)]
+        text = 'name: {}'.format(self.name)
         commands = [['build wall', self.build_wall, image.BUILD],
                     ['build mine', self.build_mine, image.REMOVE],
                     ['build barrack', self.build_barrack, image.ICON],

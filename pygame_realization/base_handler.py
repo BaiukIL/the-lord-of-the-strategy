@@ -2,19 +2,22 @@ from abc import ABC, abstractmethod
 
 
 # CoR Base Handler
-class BaseHandler(ABC):
-    _next: 'BaseHandler' = None
+class BaseHandler:
+    _next_handler: 'BaseHandler' = None
 
     def set_next(self, handler) -> 'BaseHandler':
-        self._next = handler
+        self._next_handler = handler
         return handler
 
-    def handle(self, args) -> bool:
-        handled = self._handle(args)
-        if self._next is not None:
-            return self._next.handle(args[1:])
-        return handled
+    def handle_click(self, *args):
+        if self.can_handle(*args):
+            self.handle()
+        else:
+            if self._next_handler is not None:
+                self._next_handler.handle_click(*args)
 
-    @abstractmethod
-    def _handle(self, args) -> bool:
+    def can_handle(self, *args) -> bool:
+        pass
+
+    def handle(self, *args):
         pass

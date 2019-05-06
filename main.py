@@ -1,14 +1,12 @@
 import pygame
-from pygame_realization import interface as interface_mod
-from configs import game_config, interface_config
+from pygame_realization import interface as itf, map
+from configs import interface_config
 from entities import empire, races
 from images import image
 
 
 def play_game():
-    world_map = pygame.transform.scale(pygame.image.load(image.MAP), game_config.MAP_SIZE)
-
-    interface = interface_mod.Interface(world_map)
+    interface = itf.Interface()
 
     this_empire = empire.Empire(races.elves)
     this_empire.set_city("Nevborn")
@@ -29,31 +27,29 @@ def play_game():
             print(event)
 
         key = pygame.key.get_pressed()
-        # consider camera position while getting the mouse position
         mouse_pos = pygame.mouse.get_pos()
 
         if mouse_pressed:
             handled = False
-            if interface.selected.rect.collidepoint(mouse_pos):
+            if itf.Selected().rect.collidepoint(mouse_pos):
                 handled = True
-            if interface.minimap.rect.collidepoint(mouse_pos):
+            if itf.Minimap().rect.collidepoint(mouse_pos):
                 handled = True
             for command in interface.commands:
                 if command.rect.collidepoint(mouse_pos):
-                    interface.handle_interface_click(mouse_pos)
                     handled = True
             for obj in objects:
                 # mouse position with a glance to camera position on the map
-                mouse_global_pos = mouse_pos[0] + interface.camera.x, mouse_pos[0] + interface.camera.y
+                mouse_global_pos = mouse_pos[0] + itf.Camera().x, mouse_pos[1] + itf.Camera().y
                 if obj.rect.collidepoint(mouse_global_pos):
-                    interface.handle_object_click(obj.react_click())
+                    interface.handle_object_click(obj.handle())
                     handled = True
             if not handled:
                 interface.handle_no_click()
 
-        interface.camera.move_view(key, mouse_pos)
         # place objects on map
-        objects.draw(world_map)
+        objects.draw(map.Map().image)
+        interface.move_view(key, mouse_pos)
         # draw interface windows
         interface.draw_windows(screen)
         # show screen
