@@ -1,4 +1,4 @@
-from entities.buildings import base_building
+from game_objects.buildings import base_building
 
 
 class Mine(base_building.Building):

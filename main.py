@@ -1,18 +1,26 @@
 import pygame
-from pygame_realization import interface as itf, map
+from interface import interface as itf
 from configs import interface_config
-from entities import empire, races
+from game_objects import empire, races, map
 from images import image
+
+
+def get_global_mouse_pos() -> tuple:
+    """Mouse position with a glance to camera position on the map"""
+
+    mouse_pos = pygame.mouse.get_pos()
+    return mouse_pos[0] + itf.Interface().camera.x, mouse_pos[1] + itf.Interface().camera.y
 
 
 def play_game():
     interface = itf.Interface()
 
-    this_empire = empire.Empire(races.elves)
+    this_empire = empire.Empire(races.ELVES)
     this_empire.set_city("Nevborn")
 
     objects = pygame.sprite.Group()
-    objects.add(this_empire.get_city("Nevborn"))
+    city = this_empire.get_city("Nevborn")
+    objects.add(city)
 
     while True:
         mouse_pressed = False
@@ -30,19 +38,9 @@ def play_game():
         mouse_pos = pygame.mouse.get_pos()
 
         if mouse_pressed:
-            handled = False
-            if itf.Selected().rect.collidepoint(mouse_pos):
-                handled = True
-            if itf.Minimap().rect.collidepoint(mouse_pos):
-                handled = True
-            for command in interface.commands:
-                if command.rect.collidepoint(mouse_pos):
-                    handled = True
+            handled = itf.Interface().handle_click(mouse_pos)
             for obj in objects:
-                # mouse position with a glance to camera position on the map
-                mouse_global_pos = mouse_pos[0] + itf.Camera().x, mouse_pos[1] + itf.Camera().y
-                if obj.rect.collidepoint(mouse_global_pos):
-                    interface.handle_object_click(obj.handle())
+                if obj.handle_click(get_global_mouse_pos()):
                     handled = True
             if not handled:
                 interface.handle_no_click()
@@ -50,8 +48,10 @@ def play_game():
         # place objects on map
         objects.draw(map.Map().image)
         interface.move_view(key, mouse_pos)
-        # draw interface windows
-        interface.draw_windows(screen)
+
+        interface.draw_interface(screen)
+        if itf.Interface().selected.buffer is not None:
+            screen.blit(itf.Interface().selected.buffer._reset_image, (400, 100))
         # show screen
         pygame.display.flip()
         # cap the framerate

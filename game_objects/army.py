@@ -1,25 +1,25 @@
 """Composite & Iterator & Visitor"""
 
-from entities import gameobject
-from entities.units import unit as unit_mod
+from game_objects import base_object, unit as unit_mod
 import collections
 from abc import ABC, abstractmethod
 
 
-# composite
 class ArmyComponent(ABC):
+    """Composite"""
+
     @property
     def parent(self):
         return self._parent
 
     @parent.setter
-    def parent(self, value):
+    def parent(self, value: 'ArmyComponent'):
         self._parent = value
 
     @property
     @abstractmethod
     def groups(self) -> list:
-        raise NotImplementedError
+        pass
 
     def get_unit(self) -> unit_mod.Unit:
         pass
@@ -28,33 +28,13 @@ class ArmyComponent(ABC):
         return True
 
 
-# iterator
-class ArmyIterator(collections.abc.Iterator):
-    _queue: collections.deque
-    _position: ArmyComponent
-
-    def __init__(self, collection: ArmyComponent):
-        self._position = collection
-        self._queue = collections.deque()
-        self._queue.append(collection)
-
-    def __next__(self) -> ArmyComponent:
-        try:
-            self._position = self._queue.popleft()
-            for child in self._position.groups:
-                self._queue.append(child)
-        except IndexError:
-            raise StopIteration
-        return self._position
-
-
 class ArmyComposite(ArmyComponent):
     _groups: list
 
     def __init__(self):
         self._groups = list()
 
-    def __iter__(self) -> ArmyIterator:
+    def __iter__(self) -> 'ArmyIterator':
         return ArmyIterator(self)
 
     @property
@@ -85,16 +65,38 @@ class ArmyLeaf(ArmyComponent):
         return False
 
 
-# visitor
-class Army(gameobject.GameObject):
+class ArmyIterator(collections.abc.Iterator):
+    """Iterator"""
+
+    _queue: collections.deque
+    _position: ArmyComponent
+
+    def __init__(self, collection: ArmyComponent):
+        self._position = collection
+        self._queue = collections.deque()
+        self._queue.append(collection)
+
+    def __next__(self) -> ArmyComponent:
+        try:
+            self._position = self._queue.popleft()
+            for child in self._position.groups:
+                self._queue.append(child)
+        except IndexError:
+            raise StopIteration
+        return self._position
+
+
+class Army(base_object.GameEntity):
+    """Visitor"""
+
     def __init__(self, empire):
-        gameobject.GameObject.__init__(self, race=empire.race)
+        base_object.GameEntity.__init__(self, race=empire.race)
         self._master_empire = empire
         self._army = ArmyComposite()
 
     def info(self):
-        print("Army's empire: {}".format(self._master_empire.name))
-        print("Army's race: {}".format(self._race))
+        print("Empire: {}".format(self._master_empire.name))
+        print("Race: {}".format(self.race))
         print("Army consists of:")
         for group in self._army:
             if not group.is_compound():

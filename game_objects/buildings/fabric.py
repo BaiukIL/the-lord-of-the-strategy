@@ -1,22 +1,24 @@
-from entities.buildings import barrack, mine, wall
-from entities import races
+from game_objects.buildings import barrack, mine, wall
+from game_objects import races
 from abc import ABC, abstractmethod
 from images import image
 
 
-# Abstract Factory
 class Manufacture:
+    """Abstract Factory"""
+
     def create_fabric(self, city):
-        if city.race == races.elves:
+        if city.race == races.ELVES:
             return ElvesFabric(city)
-        elif city.race == races.orcs:
+        elif city.race == races.ORCS:
             return OrcsFabric(city)
-        elif city.race == races.dwarfs:
+        elif city.race == races.DWARFS:
             return DwarfsFabric(city)
 
 
-# Template Method ???
 class Fabric(ABC):
+    """Template Method"""
+
     def __init__(self, city):
         self._master_city = city
 
