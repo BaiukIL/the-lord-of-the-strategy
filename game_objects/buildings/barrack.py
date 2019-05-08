@@ -2,7 +2,6 @@ from game_objects import unit as unit_mod
 from game_objects.buildings import base_building
 from abc import ABC, abstractmethod
 from images import image
-from typing import *
 
 
 class Barrack(base_building.Building, ABC):
@@ -10,17 +9,17 @@ class Barrack(base_building.Building, ABC):
 
     def create_builder(self):
         unit = self._create_builder()
-        self._add_to_army(unit)
+        self.empire.army.recruit_unit(unit=unit)
         return unit
 
     def create_scout(self):
         unit = self._create_scout()
-        self._add_to_army(unit)
+        self.empire.army.recruit_unit(unit=unit)
         return unit
 
     def create_warrior(self):
         unit = self._create_warrior()
-        self._add_to_army(unit)
+        self.empire.army.recruit_unit(unit=unit)
         return unit
 
     @abstractmethod
@@ -32,41 +31,35 @@ class Barrack(base_building.Building, ABC):
     @abstractmethod
     def _create_warrior(self) -> unit_mod.Warrior: pass
 
-    def _add_to_army(self, unit: unit_mod.Unit):
-        self._master_city._master_empire.army.recruit_unit(unit=unit)
-
 
 class ElvesBarrack(Barrack):
     def _create_builder(self) -> unit_mod.Builder:
-        return unit_mod.ElfBuilder(race=self.race, health=4, speed=2, image_file=image.ELVES_BUILDER)
+        return unit_mod.ElfBuilder(empire=self.empire, health=4, speed=2, image_file=image.ELVES_BUILDER, size=(50, 50))
 
     def _create_scout(self) -> unit_mod.Scout:
-        return unit_mod.ElfScout(race=self.race, health=6, speed=2, image_file=image.ELVES_SCOUT)
+        return unit_mod.ElfScout(empire=self.empire, health=6, speed=2, image_file=image.ELVES_SCOUT, size=(50, 50))
 
     def _create_warrior(self) -> unit_mod.Warrior:
-        return unit_mod.ElfWarrior(race=self.race, health=6, speed=1, damage=1, image_file=image.ELVES_WARRIOR)
-
-    def unique_commands(self) -> List[Tuple]:
-        return [()]
+        return unit_mod.ElfWarrior(empire=self.empire, health=6, speed=1, damage=1, image_file=image.ELVES_WARRIOR, size=(50, 50))
 
 
 class OrcsBarrack(Barrack):
     def _create_builder(self) -> unit_mod.Builder:
-        return unit_mod.OrcBuilder(race=self.race, health=2, speed=2, image_file=image.ORCS_BUILDER)
+        return unit_mod.OrcBuilder(empire=self.empire, health=2, speed=2, image_file=image.ORCS_BUILDER, size=(50, 50))
 
     def _create_scout(self) -> unit_mod.Scout:
-        return unit_mod.OrcScout(race=self.race, health=3, speed=2, image_file=image.ORCS_SCOUT)
+        return unit_mod.OrcScout(empire=self.empire, health=3, speed=2, image_file=image.ORCS_SCOUT, size=(50, 50))
 
     def _create_warrior(self) -> unit_mod.Warrior:
-        return unit_mod.OrcWarrior(race=self.race, health=3, speed=1, damage=1, image_file=image.ORCS_WARRIOR)
+        return unit_mod.OrcWarrior(empire=self.empire, health=3, speed=1, damage=1, image_file=image.ORCS_WARRIOR, size=(50, 50))
 
 
 class DwarfsBarrack(Barrack):
     def _create_builder(self) -> unit_mod.Builder:
-        return unit_mod.DwarfBuilder(race=self.race, health=2, speed=2, image_file=image.DWARFS_BUILDER)
+        return unit_mod.DwarfBuilder(empire=self.empire, health=2, speed=2, image_file=image.DWARFS_BUILDER, size=(50, 50))
 
     def _create_scout(self) -> unit_mod.Scout:
-        return unit_mod.DwarfScout(race=self.race, health=3, speed=2, image_file=image.DWARFS_SCOUT)
+        return unit_mod.DwarfScout(empire=self.empire, health=3, speed=2, image_file=image.DWARFS_SCOUT, size=(50, 50))
 
     def _create_warrior(self) -> unit_mod.Warrior:
-        return unit_mod.DwarfWarrior(race=self.race, health=3, speed=1, damage=1, image_file=image.DWARFS_WARRIOR)
+        return unit_mod.DwarfWarrior(empire=self.empire, health=3, speed=1, damage=1, image_file=image.DWARFS_WARRIOR, size=(50, 50))

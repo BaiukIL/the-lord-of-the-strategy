@@ -50,7 +50,7 @@ class Selected(window.Window):
 
     """The most recent chosen (selected) game object"""
     buffer: window.Window = None
-    command: 'MouseClickCommand' = None
+    command: 'Command' = None
 
     def __init__(self):
         window.Window.__init__(self, interface_config.SELECTED_SIZE)
@@ -58,20 +58,27 @@ class Selected(window.Window):
         self.set_default_alpha(170)
         self.hide()
 
-    def handle_object_click(self, obj):
-        self.active()
-        self.clear()
+    def select(self, obj: window.Window or None):
+        if self.buffer is not None:
+            self.buffer.passive()
         self.buffer = obj
+
+    def handle_object_click(self, obj):
+        if isinstance(self.command, ObjectInteractionCommand):
+            self.command.execute(obj)
+        self.clear()
+        self.active()
+        self.select(obj)
+        self.buffer.active()
         self._place_image(obj._image)
         self._place_text(obj.info())
 
     def handle_empty_click(self):
-        if self.buffer is not None:
-            self.buffer.passive()
-        if self.command is not None:
-            self.command.execute(get_global_mouse_pos())
         self.clear()
         self.hide()
+        self.select(None)
+        if isinstance(self.command, MouseInteractionCommand):
+            self.command.execute(get_global_mouse_pos())
 
     def _place_image(self, image: pygame.Surface):
         self._image.blit(
@@ -121,7 +128,7 @@ class Command(window.Window, ABC):
     Represents commands which selected object has."""
 
     _action: Callable
-    activated: bool = False
+    _activated: bool = False
 
     def __init__(self, image_file: str, action: Callable, message: Text):
         window.Window.__init__(self, interface_config.COMMAND_SIZE, pygame.image.load(image_file))
@@ -129,27 +136,27 @@ class Command(window.Window, ABC):
         self._action = action
         self._hint_message = message
 
-    def handle_empty_click(self, mouse_pos: Tuple[int, int]):
-        if self.activated:
-            self._action(mouse_pos)
-        self.activated = False
-
     def handle(self, mouse_pos: Tuple[int, int]):
+        self._activated = True
         Interface().selected.command = self
 
-    @abstractmethod
     def execute(self, *args):
-        pass
+        if self._activated:
+            self._action(*args)
+        self._activated = False
 
 
-class NoArgsCommand(Command):
-    def execute(self):
+class NoInteractionCommand(Command):
+    def handle(self, *args):
         self._action()
 
 
-class MouseClickCommand(Command):
-    def execute(self, mouse_pos: Tuple[int, int]):
-        self._action(mouse_pos)
+class MouseInteractionCommand(Command):
+    pass
+
+
+class ObjectInteractionCommand(Command):
+    pass
 
 
 class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Singleton):
@@ -197,8 +204,21 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
         self.commands.empty()
         pos = [self.selected.rect.right + interface_config.SELECTED_TO_COMMAND_INDENT,
                interface_config.SCR_HEIGHT - interface_config.COMMAND_HEIGHT - 10]
-        for command in obj.commands:
-            command_window = MouseClickCommand(*command)
+
+        for command in obj.mouse_interaction_commands:
+            command_window = MouseInteractionCommand(*command)
+            command_window.rect.topleft = pos
+            self.commands.add(command_window)
+            pos[0] += interface_config.COMMANDS_INDENT
+
+        for command in obj.no_interaction_commands:
+            command_window = NoInteractionCommand(*command)
+            command_window.rect.topleft = pos
+            self.commands.add(command_window)
+            pos[0] += interface_config.COMMANDS_INDENT
+
+        for command in obj.object_interaction_commands:
+            command_window = ObjectInteractionCommand(*command)
             command_window.rect.topleft = pos
             self.commands.add(command_window)
             pos[0] += interface_config.COMMANDS_INDENT

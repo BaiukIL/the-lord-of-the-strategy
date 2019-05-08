@@ -13,10 +13,9 @@ class CityError(Exception):
 class City(base_object.GameObject):
     _buildings = pygame.sprite.Group()
 
-    def __init__(self, name, empire):
-        base_object.GameObject.__init__(self, race=empire.race, image_file=image.CITY, size=game_config.CITY_SIZE)
+    def __init__(self, name: str, empire):
+        base_object.GameObject.__init__(self, empire=empire, image_file=image.CITY, size=game_config.CITY_SIZE)
         self.name = name
-        self._master_empire = empire
         self._fabric = fabric.Manufacture().create_fabric(self)
 
     def build_barrack(self, mouse_pos: Tuple[int, int]):
@@ -40,17 +39,11 @@ class City(base_object.GameObject):
     def info(self) -> Text:
         result = str()
         result += "Name: {}\n".format(self.name)
-        result += "Race: {}\n".format(self.race)
-        if len(self._buildings) == 0:
-            result += "No buildings\n"
-        else:
-            result += "Buildings:\n"
-            for building in self._buildings:
-                result += " - {}".format(building.__class__.__name__)
+        result += "Race: {}\n".format(self.empire.race)
         return result
 
     @property
-    def unique_commands(self) -> List[Tuple]:
+    def mouse_interaction_commands(self) -> List[Tuple[str, Callable, Text]]:
         return [(image.BUILD, self.build_barrack, 'build barrack'),
                 (image.BUILD, self.build_wall, 'build wall'),
                 (image.BUILD, self.build_mine, 'build mine')]

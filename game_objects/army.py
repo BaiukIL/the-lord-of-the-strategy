@@ -1,12 +1,14 @@
 """Composite & Iterator & Visitor"""
 
-from game_objects import base_object, unit as unit_mod
+from game_objects import unit as unit_mod
 import collections
 from abc import ABC, abstractmethod
 
 
 class ArmyComponent(ABC):
     """Composite"""
+
+    _parent: 'ArmyComponent'
 
     @property
     def parent(self):
@@ -86,17 +88,16 @@ class ArmyIterator(collections.abc.Iterator):
         return self._position
 
 
-class Army(base_object.GameEntity):
+class Army:
     """Visitor"""
 
     def __init__(self, empire):
-        base_object.GameEntity.__init__(self, race=empire.race)
-        self._master_empire = empire
+        self.empire = empire
         self._army = ArmyComposite()
 
     def info(self):
-        print("Empire: {}".format(self._master_empire.name))
-        print("Race: {}".format(self.race))
+        print("Empire: {}".format(self.empire.name))
+        print("Race: {}".format(self.empire.race))
         print("Army consists of:")
         for group in self._army:
             if not group.is_compound():

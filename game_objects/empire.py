@@ -1,4 +1,4 @@
-from game_objects import base_object, army, city
+from game_objects import army, city
 from typing import *
 
 
@@ -6,8 +6,10 @@ class EmpireError(Exception):
     pass
 
 
-class Empire(base_object.GameEntity):
+class Empire:
+    """"""
 
+    race: str
     name: str
     resources: int = 500
     _cities: Dict[str, city.City] = dict()
@@ -16,9 +18,9 @@ class Empire(base_object.GameEntity):
     enemies: List['Empire']
 
     def __init__(self, race, name: str = 'DefaultEmpireName'):
-        base_object.GameEntity.__init__(self, race=race)
-        self.army = army.Army(empire=self)
+        self.race = race
         self.name = name
+        self.army = army.Army(empire=self)
 
     def set_city(self, name: str):
         if name not in self._cities:
@@ -31,12 +33,6 @@ class Empire(base_object.GameEntity):
             return self._cities.get(name)
         else:
             raise EmpireError("{} city does not exist in {}".format(name, self.name))
-
-    def destroy_city(self, name: str):
-        if name in self._cities:
-            return self._cities.pop(name)
-        else:
-            raise EmpireError("{} city doesn't exist in {}".format(name, self.name))
 
     def info(self) -> Text:
         result = str()

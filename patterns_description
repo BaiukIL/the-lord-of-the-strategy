@@ -209,3 +209,5 @@ CoR.
      - It doesn't matter what order handler will be executed
 
     3. Is it so?..
+
+Observer. It's already exist in pygame. (For example, .kill)
