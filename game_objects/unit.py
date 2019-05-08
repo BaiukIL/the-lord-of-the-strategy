@@ -1,8 +1,9 @@
 from game_objects.object_properties import speed as speed_mod, health as health_mod, damage as damage_mod
 from game_objects import base_object
+from abc import ABC
 
 
-class Unit(base_object.GameObject, health_mod.Health, speed_mod.Speed):
+class Unit(base_object.GameObject, health_mod.Health, speed_mod.Speed, ABC):
     def __init__(self, race, health: int, speed: int, image_file):
         base_object.GameObject.__init__(self, race=race, image_file=image_file)
         health_mod.Health.__init__(self, health=health)
@@ -10,9 +11,6 @@ class Unit(base_object.GameObject, health_mod.Health, speed_mod.Speed):
 
     def info(self):
         print(self.__class__.__name__)
-
-    def _destroy(self):
-        print("{} is killed".format(self.__class__.__name__))
 
 
 class Warrior(Unit, damage_mod.Damage):

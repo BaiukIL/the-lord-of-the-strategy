@@ -9,8 +9,8 @@ class EmpireError(Exception):
 class Empire(base_object.GameEntity):
 
     name: str
-    resources: int
-    _cities: Dict[str, city.City]
+    resources: int = 500
+    _cities: Dict[str, city.City] = dict()
     army: army.Army
     friends: List['Empire']
     enemies: List['Empire']
@@ -19,7 +19,6 @@ class Empire(base_object.GameEntity):
         base_object.GameEntity.__init__(self, race=race)
         self.army = army.Army(empire=self)
         self.name = name
-        self._cities = dict()
 
     def set_city(self, name: str):
         if name not in self._cities:

@@ -16,4 +16,4 @@ class Map(pygame.sprite.Sprite, metaclass=templates.Singleton):
         self.rect = self.image.get_rect()
 
     def clear(self):
-        self.image = self.default_image.copy()
+        self.image.blit(self.default_image, (0, 0))

@@ -1,26 +1,14 @@
 import pygame
-from interface import interface as itf
+from game import Game
+from interface.interface import Interface, get_global_mouse_pos
 from configs import interface_config
 from game_objects import empire, races, map
 from images import image
 
 
-def get_global_mouse_pos() -> tuple:
-    """Mouse position with a glance to camera position on the map"""
-
-    mouse_pos = pygame.mouse.get_pos()
-    return mouse_pos[0] + itf.Interface().camera.x, mouse_pos[1] + itf.Interface().camera.y
-
-
 def play_game():
-    interface = itf.Interface()
-
     this_empire = empire.Empire(races.ELVES)
     this_empire.set_city("Nevborn")
-
-    objects = pygame.sprite.Group()
-    city = this_empire.get_city("Nevborn")
-    objects.add(city)
 
     while True:
         mouse_pressed = False
@@ -38,23 +26,23 @@ def play_game():
         mouse_pos = pygame.mouse.get_pos()
 
         if mouse_pressed:
-            handled = itf.Interface().handle_click(mouse_pos)
-            for obj in objects:
+            handled = Interface().handle_click(mouse_pos)
+            for obj in Game().objects:
                 if obj.handle_click(get_global_mouse_pos()):
                     handled = True
             if not handled:
-                interface.handle_no_click()
+                Interface().handle_empty_click()
 
-        interface.move_view(key, mouse_pos)
+        Interface().move_view(key, mouse_pos)
 
         map.Map().clear()
         # place objects on map
-        objects.draw(map.Map().image)
-        interface.draw_interface(screen)
+        Game().objects.draw(map.Map().image)
+        Interface().draw_interface(screen)
         # show screen
         pygame.display.flip()
         # cap the framerate
-        clock.tick(40)
+        clock.tick(60)
 
 
 if __name__ == '__main__':

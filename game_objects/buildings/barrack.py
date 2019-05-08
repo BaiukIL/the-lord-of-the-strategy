@@ -2,6 +2,7 @@ from game_objects import unit as unit_mod
 from game_objects.buildings import base_building
 from abc import ABC, abstractmethod
 from images import image
+from typing import *
 
 
 class Barrack(base_building.Building, ABC):
@@ -44,6 +45,9 @@ class ElvesBarrack(Barrack):
 
     def _create_warrior(self) -> unit_mod.Warrior:
         return unit_mod.ElfWarrior(race=self.race, health=6, speed=1, damage=1, image_file=image.ELVES_WARRIOR)
+
+    def unique_commands(self) -> List[Tuple]:
+        return [()]
 
 
 class OrcsBarrack(Barrack):

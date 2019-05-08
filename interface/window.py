@@ -5,6 +5,10 @@ from abc import ABC
 from typing import *
 
 
+class WindowException(Exception):
+    pass
+
+
 class WindowState(ABC):
     """State pattern"""
 
@@ -56,6 +60,13 @@ class Window(pygame.sprite.Sprite, templates.Handler):
 
     """Indicator: shows if window has borders or not"""
     _bordered: bool = False
+
+    """If True, borders will never disappear"""
+    _constant_bordered: bool = False
+
+    """If False, borders will never appear"""
+    _constant_not_bordered: bool = False
+
     _borders_size: int = interface_config.BORDERS_SIZE
     _borders_color: pygame.Color = interface_config.BORDERS_COLOR
 
@@ -70,6 +81,18 @@ class Window(pygame.sprite.Sprite, templates.Handler):
 
     def set_default_alpha(self, alpha: int):
         self._default_alpha = alpha
+
+    def set_constant_bordered(self):
+        if self._constant_bordered:
+            raise WindowException("Contradictory borders settings")
+        self._constant_bordered = True
+        self.add_borders()
+
+    def set_constant_not_bordered(self):
+        if self._constant_bordered:
+            raise WindowException("Contradictory borders settings")
+        self._constant_not_bordered = True
+        self.remove_borders()
 
     @property
     def image(self):
@@ -102,14 +125,15 @@ class Window(pygame.sprite.Sprite, templates.Handler):
         self.change_state(ActiveWindowState(self))
 
     def clear(self):
-        # self._image = pygame.Surface(self.rect.size, pygame.SRCALPHA)
         self._image.fill((0, 0, 0, 0))
 
     def add_borders(self):
-        self._bordered = True
+        if not self._constant_not_bordered:
+            self._bordered = True
 
     def remove_borders(self):
-        self._bordered = False
+        if not self._constant_bordered:
+            self._bordered = False
 
     def can_handle(self, mouse_pos: Tuple[int, int]) -> bool:
         return self._state.can_handle(mouse_pos)

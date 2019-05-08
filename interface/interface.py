@@ -3,7 +3,15 @@ from interface import window
 from game_objects import map
 from configs import interface_config
 import templates
+from abc import ABC, abstractmethod
 from typing import *
+
+
+def get_global_mouse_pos() -> Tuple[int, int]:
+    """Mouse position with a glance to camera position on the map"""
+
+    mouse_pos = pygame.mouse.get_pos()
+    return mouse_pos[0] + Interface().camera.x, mouse_pos[1] + Interface().camera.y
 
 
 class Camera(pygame.Rect):
@@ -42,27 +50,28 @@ class Selected(window.Window):
 
     """The most recent chosen (selected) game object"""
     buffer: window.Window = None
+    command: 'MouseClickCommand' = None
 
     def __init__(self):
         window.Window.__init__(self, interface_config.SELECTED_SIZE)
         self.rect.bottomleft = (0, interface_config.SCR_HEIGHT)
         self.set_default_alpha(170)
-        self.add_borders()
         self.hide()
 
     def handle_object_click(self, obj):
-        self.clear()
         self.active()
+        self.clear()
         self.buffer = obj
         self._place_image(obj._image)
         self._place_text(obj.info())
 
-    def handle_no_click(self):
-        self.clear()
-        self.hide()
+    def handle_empty_click(self):
         if self.buffer is not None:
             self.buffer.passive()
-            self.buffer.remove_borders()
+        if self.command is not None:
+            self.command.execute(get_global_mouse_pos())
+        self.clear()
+        self.hide()
 
     def _place_image(self, image: pygame.Surface):
         self._image.blit(
@@ -90,7 +99,7 @@ class Minimap(window.Window):
     def __init__(self):
         window.Window.__init__(self, interface_config.MINIMAP_SIZE, image=map.Map().image)
         self.rect.bottomright = interface_config.SCR_SIZE
-        self.add_borders()
+        self.set_constant_bordered()
 
         self._frame = pygame.Rect(
             self.rect.topleft, (
@@ -107,20 +116,40 @@ class Minimap(window.Window):
         pygame.draw.rect(self._image, self._borders_color, self._frame, 1)
 
 
-class Command(window.Window):
+class Command(window.Window, ABC):
     """A window which is located in the middle bottom of the screen.
     Represents commands which selected object has."""
 
     _action: Callable
+    activated: bool = False
 
     def __init__(self, image_file: str, action: Callable, message: Text):
         window.Window.__init__(self, interface_config.COMMAND_SIZE, pygame.image.load(image_file))
+        self.set_constant_bordered()
         self._action = action
         self._hint_message = message
-        self.add_borders()
+
+    def handle_empty_click(self, mouse_pos: Tuple[int, int]):
+        if self.activated:
+            self._action(mouse_pos)
+        self.activated = False
 
     def handle(self, mouse_pos: Tuple[int, int]):
+        Interface().selected.command = self
+
+    @abstractmethod
+    def execute(self, *args):
         pass
+
+
+class NoArgsCommand(Command):
+    def execute(self):
+        self._action()
+
+
+class MouseClickCommand(Command):
+    def execute(self, mouse_pos: Tuple[int, int]):
+        self._action(mouse_pos)
 
 
 class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Singleton):
@@ -151,9 +180,9 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
         self.selected.handle_object_click(obj)
         self._place_commands(obj)
 
-    def handle_no_click(self):
+    def handle_empty_click(self):
         self.commands.empty()
-        self.selected.handle_no_click()
+        self.selected.handle_empty_click()
 
     def draw_interface(self, screen: pygame.Surface):
         # make place of camera location visible
@@ -169,7 +198,7 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
         pos = [self.selected.rect.right + interface_config.SELECTED_TO_COMMAND_INDENT,
                interface_config.SCR_HEIGHT - interface_config.COMMAND_HEIGHT - 10]
         for command in obj.commands:
-            command_window = Command(*command)
+            command_window = MouseClickCommand(*command)
             command_window.rect.topleft = pos
             self.commands.add(command_window)
             pos[0] += interface_config.COMMANDS_INDENT

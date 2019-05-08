@@ -11,12 +11,12 @@ MINIMAP_FRAME = '{}minimap_frame.jpg'.format(path)
 BUILD = '{}build_simple.jpg'.format(path)
 REMOVE = '{}remove_simple.jpg'.format(path)
 
-CITY = '{}/city/city.png'.format(path)
+CITY = '{}/elves city.png'.format(path)
 ELVES_CITY = '{}city.jpg'.format(path)
 ORCS_CITY = '{}city.jpg'.format(path)
 DWARFS_CITY = '{}city.jpg'.format(path)
 
-ELVES_BARRACK = '{}barrack.png'.format(path)
+ELVES_BARRACK = '{}barrack_tent.png'.format(path)
 ORCS_BARRACK = '{}barrack.png'.format(path)
 DWARFS_BARRACK = '{}barrack.png'.format(path)
 

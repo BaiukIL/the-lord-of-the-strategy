@@ -29,11 +29,11 @@ class Health(ABC):
         else:
             raise HealthError("Can't decrease negative health: {}. Use increase_health for this".format(value))
         if not self.is_alive():
-            self._destroy()
+            self.destroy()
 
     def is_alive(self):
         return self._health > 0
 
     @abstractmethod
-    def _destroy(self):
+    def destroy(self):
         pass
