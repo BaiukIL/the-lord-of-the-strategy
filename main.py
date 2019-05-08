@@ -45,17 +45,16 @@ def play_game():
             if not handled:
                 interface.handle_no_click()
 
-        # place objects on map
-        objects.draw(map.Map().image)
         interface.move_view(key, mouse_pos)
 
+        map.Map().clear()
+        # place objects on map
+        objects.draw(map.Map().image)
         interface.draw_interface(screen)
-        if itf.Interface().selected.buffer is not None:
-            screen.blit(itf.Interface().selected.buffer._reset_image, (400, 100))
         # show screen
         pygame.display.flip()
         # cap the framerate
-        clock.tick(60)
+        clock.tick(40)
 
 
 if __name__ == '__main__':

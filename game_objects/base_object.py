@@ -24,14 +24,18 @@ class GameEntity(ABC):
 class GameObject(GameEntity, window.Window, ABC):
 
     cost: int
-    icon: pygame.Surface
+    icon_image: pygame.Surface
 
-    def __init__(self, race, image_file: str, size: Tuple[int, int]):
+    def __init__(self, race, image_file: str, size: Tuple[int, int], icon_file: str = None):
         GameEntity.__init__(self, race)
         window.Window.__init__(self, size, image=pygame.image.load(image_file))
+        if icon_file is None:
+            self.icon_image = pygame.image.load(image_file)
+        else:
+            self.icon_image = pygame.image.load(icon_file)
 
     def handle(self, mouse_pos: Tuple[int, int]):
-        self.change_state(window.SelectedWindowState(self, self.image.get_alpha()))
+        self.change_state(window.ActiveWindowState(self))
         interface.Interface().handle_object_click(self)
 
     @property

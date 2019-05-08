@@ -46,35 +46,38 @@ class Selected(window.Window):
     def __init__(self):
         window.Window.__init__(self, interface_config.SELECTED_SIZE)
         self.rect.bottomleft = (0, interface_config.SCR_HEIGHT)
+        self.set_default_alpha(170)
         self.add_borders()
         self.hide()
 
     def handle_object_click(self, obj):
-        # self.reset()
+        self.clear()
+        self.active()
         self.buffer = obj
-        self._place_image(obj.inner_image)
+        self._place_image(obj._image)
         self._place_text(obj.info())
-        self.active(170)
 
     def handle_no_click(self):
-        self.buffer.active(self.buffer.image.get_alpha())
-        self.buffer.remove_borders()
+        self.clear()
         self.hide()
+        if self.buffer is not None:
+            self.buffer.passive()
+            self.buffer.remove_borders()
 
     def _place_image(self, image: pygame.Surface):
-        self.inner_image.blit(
-            pygame.transform.scale(image, (self.inner_image.get_width() // 2,
-                                           self.inner_image.get_height() // 2)),
-            (0, self.inner_image.get_height() // 2))
+        self._image.blit(
+            pygame.transform.scale(image, (self.rect.width // 2,
+                                           self.rect.height // 2)),
+            (0, self.rect.height // 2))
 
-    def _place_text(self, text: str):
+    def _place_text(self, text: Text):
         font = pygame.font.SysFont(name='Ani', size=20)
         # vertical indent between lines
         indent = 20
         # interface_config.BORDERS_SIZE is indent from left side of selected screen
         line_pos = [0, 0]
         for line in text.split('\n'):
-            self.inner_image.blit(font.render(line, True, pygame.Color('white')), line_pos)
+            self._image.blit(font.render(line, True, pygame.Color('white')), line_pos)
             line_pos[1] += indent
 
 
@@ -87,21 +90,21 @@ class Minimap(window.Window):
     def __init__(self):
         window.Window.__init__(self, interface_config.MINIMAP_SIZE, image=map.Map().image)
         self.rect.bottomright = interface_config.SCR_SIZE
-        self.active(200)
         self.add_borders()
 
         self._frame = pygame.Rect(
             self.rect.topleft, (
-                int(self.inner_image.get_width() * interface_config.SCR_WIDTH / map.Map().rect.width),
-                int(self.inner_image.get_height() * interface_config.SCR_HEIGHT / map.Map().rect.height)))
+                int(self.rect.width * interface_config.SCR_WIDTH / map.Map().rect.width),
+                int(self.rect.height * interface_config.SCR_HEIGHT / map.Map().rect.height)))
 
     def move_frame(self, pos: tuple):
-        self._frame.x = int(pos[0] * self.inner_image.get_width() / map.Map().rect.width)
-        self._frame.y = int(pos[1] * self.inner_image.get_height() / map.Map().rect.height)
+        self._frame.x = int(pos[0] * self.rect.width / map.Map().rect.width)
+        self._frame.y = int(pos[1] * self.rect.height / map.Map().rect.height)
 
     def update(self):
-        self.inner_image.blit(pygame.transform.scale(map.Map().image, self.inner_image.get_size()), (0, 0))
-        pygame.draw.rect(self.inner_image, self.borders_color, self._frame, 1)
+        self.clear()
+        self._image.blit(pygame.transform.scale(map.Map().image, self.rect.size), (0, 0))
+        pygame.draw.rect(self._image, self._borders_color, self._frame, 1)
 
 
 class Command(window.Window):
@@ -142,7 +145,7 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
         for command in self.commands:
             if command.handle_click(mouse_pos):
                 return True
-        return self.selected.handle_click(mouse_pos) and self.minimap.handle_click(mouse_pos)
+        return self.selected.handle_click(mouse_pos) or self.minimap.handle_click(mouse_pos)
 
     def handle_object_click(self, obj):
         self.selected.handle_object_click(obj)

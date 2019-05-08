@@ -7,6 +7,9 @@ Empire.
             - Army:
                 - Units
 
+------------------------------------------------------------------------------------------------------------------------
+========================================================================================================================
+========================================================================================================================
 ========================================================================================================================
 ------------------------------------------------------------------------------------------------------------------------
     Problem: How to structure empires?
@@ -81,30 +84,27 @@ Empire.
     control object's creation.
 ------------------------------------------------------------------------------------------------------------------------
 ========================================================================================================================
-
-City.
-    City has "buildings" field (array of "Building"). It has nothing interesting so far.
-    It's important to say, that even though elf, orc and dwarf city do not differ in interface
+========================================================================================================================
+========================================================================================================================
+------------------------------------------------------------------------------------------------------------------------
 
 Building.
-    What is about the very buildings? Every building is a complex object which is supposed to have a big number of args
-    during construction.
 ========================================================================================================================
 ------------------------------------------------------------------------------------------------------------------------
     Problem: How to construct buildings?
 ------------------------------------------------------------------------------------------------------------------------
     Think: So far building can be barrack, mine or wall. It is clear, for example, that elves', dwarfs' or orcs' mines
     are pretty similar. It suggests that we can build ones using similar functions (these objects can be complex, so using
-    step-by-step functions can be much useful than using a single stacked constructor).
-------------------------------------------------------------------------------------------------------------------------
-    Solution: Use BUILDER pattern. Every type of building will have BUILDER and DIRECTOR classes managing its construction.
+    step-by-step functions can be more useful than using a single stacked constructor).
+    Thus, BUILDER pattern can help. Every type of building will have BUILDER and DIRECTOR classes managing its construction.
     To create object we will use:
         director = ...Director()
         builder = ...Builder()
         director.create_...(builder)
-    It seems to be good idea to use this pattern, for we can easily manage with building creation and hide huge
-    constructor from user.
 ------------------------------------------------------------------------------------------------------------------------
+    Pros: This way we can easily manage with building creation and hide huge constructor from user.
+------------------------------------------------------------------------------------------------------------------------
+    Cons: It causes redundant complexity. In fact, we don't have to build
 ========================================================================================================================
 
 ========================================================================================================================
@@ -187,3 +187,25 @@ what city it belongs to). Problem occurs when we creates units this way. How to 
 2. How to be with function annotations? It's good idea to use them. However, functions usually returns objects
 from other modules, so to make annotation it's necessary to import modules of such modules which makes program
 strongly-connected (sometimes it even leads to mutual import)
+
+------------------------------------------------------------------------------------------------------------------------
+========================================================================================================================
+========================================================================================================================
+========================================================================================================================
+------------------------------------------------------------------------------------------------------------------------
+CoR.
+------------------------------------------------------------------------------------------------------------------------
+    Situation: we need to handle mouse button press. So we need to figure out what surface can handle this query.
+    CoR???
+    OK, let Selected() be the first handler, Minimap() second, next ... what next? Next we see game objects, placed
+    on Map(), and commands. If we want to continue our handling-chain we need to align commands and game objects.
+    However, a great part of objects don't know about other objects and commands don't know anything about each other.
+    Hereby, by including them in the chain we increase connections number of the program, which is bad.
+
+    1.  Use the Chain of Responsibility pattern when your program is expected to process different kinds of
+    requests in various ways, but the exact types of requests and their sequences are unknown beforehand.
+     - We know sequences of requests BEFOREHAND.
+    2.  Use the pattern when it’s essential to execute several handlers in a particular order.
+     - It doesn't matter what order handler will be executed
+
+    3. Is it so?..
