@@ -1,17 +1,14 @@
-"""Every game object has fields of this class,
-so every game entity is inherited from one of these"""
-
-
 import pygame
 import game
 from abc import ABC, abstractmethod
-from interface import window, interface, command
+from interface import window
 from images import image
+import templates
 from typing import *
 
 
-class GameObject(window.Window, ABC):
-    """"""
+class GameObject(window.Window, templates.Publisher, ABC):
+    """Base class for all objects, belonging to any empire"""
 
     cost: int
 
@@ -25,7 +22,7 @@ class GameObject(window.Window, ABC):
             self.icon_image = pygame.image.load(image_file)
         else:
             self.icon_image = pygame.image.load(icon_file)
-        game.Game().objects.add(self)
+        game.add_to_game(self)
 
     @abstractmethod
     def info(self) -> Text:
@@ -34,13 +31,15 @@ class GameObject(window.Window, ABC):
     def upgrade(self):
         pass
 
-    def handle(self, mouse_pos: Tuple[int, int]):
-        interface.Interface().handle_object_click(self)
-        self.active()
+    def click_action(self):
+        self.notify('click', self)
+
+    def return_click_action(self):
+        game.Interface().handle_empty_click((0, 0))
 
     def destroy(self):
         """This method is called when object is out of health"""
-        interface.Interface().handle_object_deletion()
+        game.Interface().handle_object_deletion()
         self.kill()
 
     @property

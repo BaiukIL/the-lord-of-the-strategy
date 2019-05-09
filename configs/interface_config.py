@@ -1,4 +1,3 @@
-import pygame
 from configs import game_config
 
 
@@ -17,5 +16,5 @@ MINIMAP_WIDTH = 400
 MINIMAP_HEIGHT = int(MINIMAP_WIDTH * game_config.MAP_HEIGHT / game_config.MAP_WIDTH)
 MINIMAP_SIZE = MINIMAP_WIDTH, MINIMAP_HEIGHT
 
-BORDERS_COLOR = pygame.Color(255, 255, 0)
+BORDERS_COLOR = 255, 255, 0
 BORDERS_SIZE = 2

@@ -1,4 +1,5 @@
 from typing import *
+from collections import defaultdict
 
 
 class Singleton(type):
@@ -28,7 +29,6 @@ class Handler:
             self.handle(mouse_pos)
             return True
         else:
-            self.not_handle()
             if self._next_handler is not None:
                 return self._next_handler.handle_click(mouse_pos)
             else:
@@ -40,15 +40,10 @@ class Handler:
     def handle(self, mouse_pos: Tuple[int, int]):
         pass
 
-    def not_handle(self):
-        """Empty method which can be overridden. It calls when object
-        couldn't handle click"""
-        pass
-
 
 class Publisher:
 
-    subscribers: Dict[str, List['Subscriber']]
+    subscribers: Dict[str, List['Subscriber']] = defaultdict(list)
 
     def subscribe(self, event, subscriber: 'Subscriber'):
         self.subscribers[event].append(subscriber)

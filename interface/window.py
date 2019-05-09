@@ -12,6 +12,8 @@ class WindowException(Exception):
 class WindowState(ABC):
     """State pattern"""
 
+    _window: 'Window'
+
     def __init__(self, window: 'Window'):
         self._window = window
 
@@ -20,12 +22,14 @@ class WindowState(ABC):
             return True
         return False
 
+    def handle(self, mouse_pos: Tuple[int, int]):
+        pass
+
 
 class HiddenWindowState(WindowState):
     def __init__(self, window: 'Window'):
         super().__init__(window)
         self._window._image.set_alpha(0)
-        self._window.remove_borders()
 
     def can_handle(self, mouse_pos: Tuple[int, int]) -> bool:
         return False
@@ -37,12 +41,20 @@ class PassiveWindowState(WindowState):
         self._window._image.set_alpha(self._window._default_alpha)
         self._window.remove_borders()
 
+    def handle(self, mouse_pos: Tuple[int, int]):
+        self._window.active()
+        self._window.click_action()
+
 
 class ActiveWindowState(WindowState):
     def __init__(self, window: 'Window'):
         super().__init__(window)
         self._window._image.set_alpha(self._window._default_alpha)
         self._window.add_borders()
+
+    def handle(self, mouse_pos: Tuple[int, int]):
+        self._window.passive()
+        self._window.return_click_action()
 
 
 class Window(pygame.sprite.Sprite, templates.Handler):
@@ -65,10 +77,10 @@ class Window(pygame.sprite.Sprite, templates.Handler):
     _constant_bordered: bool = False
 
     """If False, borders will never appear"""
-    _constant_not_bordered: bool = False
+    _never_bordered: bool = False
 
     _borders_size: int = interface_config.BORDERS_SIZE
-    _borders_color: pygame.Color = interface_config.BORDERS_COLOR
+    _borders_color = interface_config.BORDERS_COLOR
 
     def __init__(self, size: Tuple[int, int], image: pygame.Surface = None):
         pygame.sprite.Sprite.__init__(self)
@@ -81,6 +93,7 @@ class Window(pygame.sprite.Sprite, templates.Handler):
 
     def set_default_alpha(self, alpha: int):
         self._default_alpha = alpha
+        self._image.set_alpha(alpha)
 
     def set_constant_bordered(self):
         if self._constant_bordered:
@@ -88,10 +101,10 @@ class Window(pygame.sprite.Sprite, templates.Handler):
         self._constant_bordered = True
         self.add_borders()
 
-    def set_constant_not_bordered(self):
+    def set_never_bordered(self):
         if self._constant_bordered:
             raise WindowException("Contradictory borders settings")
-        self._constant_not_bordered = True
+        self._never_bordered = True
         self.remove_borders()
 
     @property
@@ -99,6 +112,7 @@ class Window(pygame.sprite.Sprite, templates.Handler):
         """Used by Groups"""
         if self._bordered:
             image = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+            image.set_alpha(self._image.get_alpha())
             compressed_image = pygame.transform.scale(self._image, (self.rect.width - self._borders_size,
                                                                     self.rect.height - self._borders_size))
             pygame.draw.rect(image, self._borders_color, [0, 0, self.rect.width, self.rect.height], self._borders_size)
@@ -107,10 +121,6 @@ class Window(pygame.sprite.Sprite, templates.Handler):
         else:
             image = self._image
         return image
-
-    @image.setter
-    def image(self, surface: pygame.Surface):
-        self._image = surface.copy()
 
     def change_state(self, state: WindowState):
         self._state = state
@@ -128,7 +138,7 @@ class Window(pygame.sprite.Sprite, templates.Handler):
         self._image.fill((0, 0, 0, 0))
 
     def add_borders(self):
-        if not self._constant_not_bordered:
+        if not self._never_bordered:
             self._bordered = True
 
     def remove_borders(self):
@@ -137,3 +147,16 @@ class Window(pygame.sprite.Sprite, templates.Handler):
 
     def can_handle(self, mouse_pos: Tuple[int, int]) -> bool:
         return self._state.can_handle(mouse_pos)
+
+    def handle(self, mouse_pos: Tuple[int, int]):
+        self._state.handle(mouse_pos)
+
+    def click_action(self):
+        """Empty method which can be overridden.
+        It's called when window is clicked in passive state"""
+        pass
+
+    def return_click_action(self):
+        """Empty method which can be overridden.
+        It's called when window is clicked in active state"""
+        pass

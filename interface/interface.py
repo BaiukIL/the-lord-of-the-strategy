@@ -56,6 +56,7 @@ class Selected(window.Window):
         window.Window.__init__(self, interface_config.SELECTED_SIZE)
         self.rect.bottomleft = (0, interface_config.SCR_HEIGHT)
         self.set_default_alpha(170)
+        self.set_never_bordered()
         self.hide()
 
     def hide(self):
@@ -75,13 +76,19 @@ class Selected(window.Window):
         self.command = command
 
     def handle_empty_click(self, mouse_pos: Tuple[int, int]):
+        """If command is activated and can handle empty click,
+         I'll be executed"""
         if self.command is not None:
-            self.command.handle_empty_click(get_global_mouse_pos())
+            if self.command.activated:
+                self.command.handle_empty_click(get_global_mouse_pos())
         self.hide()
 
     def handle_object_click(self, obj):
+        """If command is activated and can handle object click,
+         I'll be executed"""
         if self.command is not None:
-            self.command.handle_object_click(obj)
+            if self.command.activated:
+                self.command.handle_object_click(obj)
         self.clear()
         self.active()
         self.change_object(obj)
@@ -142,7 +149,6 @@ class Command(window.Window, ABC):
 
     def __init__(self, image_file: str, action: Callable, message: Text):
         window.Window.__init__(self, interface_config.COMMAND_SIZE, pygame.image.load(image_file))
-        # self.set_constant_bordered()
         self._action = action
         self._hint_message = message
 
@@ -154,9 +160,11 @@ class Command(window.Window, ABC):
         self.change_state(window.PassiveWindowState(self))
         self.activated = False
 
-    def handle(self, mouse_pos: Tuple[int, int]):
-        self.active()
+    def click_action(self):
         Interface().selected.change_command(self)
+
+    def return_click_action(self):
+        Interface().selected.change_command(None)
 
     def handle_empty_click(self, mouse_pos: Tuple[int, int]):
         pass
@@ -166,15 +174,21 @@ class Command(window.Window, ABC):
 
     def execute(self, *args):
         self._action(*args)
-        self.hide()
+        self.passive()
 
 
 class NoInteractionCommand(Command):
-    def handle(self, mouse_pos: Tuple[int, int]):
+    def click_action(self):
+        Interface().selected.change_command(self)
         self.execute()
 
 
 class MouseInteractionCommand(Command):
+    def __init__(self, image_file: str, action: Callable, message: Text):
+        window.Window.__init__(self, interface_config.COMMAND_SIZE, pygame.image.load(image_file))
+        self._action = action
+        self._hint_message = message
+
     def handle_empty_click(self, mouse_pos: Tuple[int, int]):
         self.execute(mouse_pos)
 
@@ -185,7 +199,8 @@ class ObjectInteractionCommand(Command):
 
 
 class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Singleton):
-    """Interface is a mediator which coordinates interface windows work."""
+    """Interface is a mediator which coordinates interface windows work.
+    It also listens to objects clicks."""
 
     camera = Camera()
     selected = Selected()
@@ -206,7 +221,7 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
             return True
         return False
 
-    def handle_object_click(self, obj):
+    def receive_notification(self, obj):
         self.selected.handle_object_click(obj)
         self._place_commands(obj)
 
