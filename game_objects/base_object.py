@@ -5,7 +5,7 @@ so every game entity is inherited from one of these"""
 import pygame
 import game
 from abc import ABC, abstractmethod
-from interface import window, interface
+from interface import window, interface, command
 from images import image
 from typing import *
 
@@ -13,7 +13,6 @@ from typing import *
 class GameObject(window.Window, ABC):
     """"""
 
-    """Reference to mater empire"""
     cost: int
 
     """Image which is drawn on Selected interface window"""
@@ -37,9 +36,11 @@ class GameObject(window.Window, ABC):
 
     def handle(self, mouse_pos: Tuple[int, int]):
         interface.Interface().handle_object_click(self)
+        self.active()
 
     def destroy(self):
         """This method is called when object is out of health"""
+        interface.Interface().handle_object_deletion()
         self.kill()
 
     @property

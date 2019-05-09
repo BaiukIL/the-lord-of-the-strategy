@@ -28,6 +28,7 @@ class Handler:
             self.handle(mouse_pos)
             return True
         else:
+            self.not_handle()
             if self._next_handler is not None:
                 return self._next_handler.handle_click(mouse_pos)
             else:
@@ -37,6 +38,11 @@ class Handler:
         pass
 
     def handle(self, mouse_pos: Tuple[int, int]):
+        pass
+
+    def not_handle(self):
+        """Empty method which can be overridden. It calls when object
+        couldn't handle click"""
         pass
 
 

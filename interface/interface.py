@@ -58,27 +58,36 @@ class Selected(window.Window):
         self.set_default_alpha(170)
         self.hide()
 
-    def select(self, obj: window.Window or None):
+    def hide(self):
+        self.clear()
+        self.change_object(None)
+        self.change_command(None)
+        self.change_state(window.HiddenWindowState(self))
+
+    def change_object(self, obj: window.Window or None):
         if self.buffer is not None:
             self.buffer.passive()
         self.buffer = obj
 
+    def change_command(self, command: 'Command' or None):
+        if self.command is not None:
+            self.command.passive()
+        self.command = command
+
+    def handle_empty_click(self, mouse_pos: Tuple[int, int]):
+        if self.command is not None:
+            self.command.handle_empty_click(get_global_mouse_pos())
+        self.hide()
+
     def handle_object_click(self, obj):
-        if isinstance(self.command, ObjectInteractionCommand):
-            self.command.execute(obj)
+        if self.command is not None:
+            self.command.handle_object_click(obj)
         self.clear()
         self.active()
-        self.select(obj)
-        self.buffer.active()
+        self.change_object(obj)
+        self.change_command(None)
         self._place_image(obj._image)
         self._place_text(obj.info())
-
-    def handle_empty_click(self):
-        self.clear()
-        self.hide()
-        self.select(None)
-        if isinstance(self.command, MouseInteractionCommand):
-            self.command.execute(get_global_mouse_pos())
 
     def _place_image(self, image: pygame.Surface):
         self._image.blit(
@@ -107,6 +116,7 @@ class Minimap(window.Window):
         window.Window.__init__(self, interface_config.MINIMAP_SIZE, image=map.Map().image)
         self.rect.bottomright = interface_config.SCR_SIZE
         self.set_constant_bordered()
+        self.set_default_alpha(170)
 
         self._frame = pygame.Rect(
             self.rect.topleft, (
@@ -128,50 +138,59 @@ class Command(window.Window, ABC):
     Represents commands which selected object has."""
 
     _action: Callable
-    _activated: bool = False
+    activated: bool = False
 
     def __init__(self, image_file: str, action: Callable, message: Text):
         window.Window.__init__(self, interface_config.COMMAND_SIZE, pygame.image.load(image_file))
-        self.set_constant_bordered()
+        # self.set_constant_bordered()
         self._action = action
         self._hint_message = message
 
+    def active(self):
+        self.change_state(window.ActiveWindowState(self))
+        self.activated = True
+
+    def passive(self):
+        self.change_state(window.PassiveWindowState(self))
+        self.activated = False
+
     def handle(self, mouse_pos: Tuple[int, int]):
-        self._activated = True
-        Interface().selected.command = self
+        self.active()
+        Interface().selected.change_command(self)
+
+    def handle_empty_click(self, mouse_pos: Tuple[int, int]):
+        pass
+
+    def handle_object_click(self, obj):
+        pass
 
     def execute(self, *args):
-        if self._activated:
-            self._action(*args)
-        self._activated = False
+        self._action(*args)
+        self.hide()
 
 
 class NoInteractionCommand(Command):
-    def handle(self, *args):
-        self._action()
+    def handle(self, mouse_pos: Tuple[int, int]):
+        self.execute()
 
 
 class MouseInteractionCommand(Command):
-    pass
+    def handle_empty_click(self, mouse_pos: Tuple[int, int]):
+        self.execute(mouse_pos)
 
 
 class ObjectInteractionCommand(Command):
-    pass
+    def handle_object_click(self, obj):
+        self.execute(obj)
 
 
 class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Singleton):
     """Interface is a mediator which coordinates interface windows work."""
 
-    camera: Camera
-    selected: Selected
-    minimap: Minimap
-    commands: pygame.sprite.Group
-
-    def __init__(self):
-        self.camera = Camera()
-        self.selected = Selected()
-        self.minimap = Minimap()
-        self.commands = pygame.sprite.Group()
+    camera = Camera()
+    selected = Selected()
+    minimap = Minimap()
+    commands = pygame.sprite.Group()
 
     def move_view(self, key, mouse_pos: Tuple[int, int]):
         self.camera.move_view(key, mouse_pos)
@@ -181,20 +200,29 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
         for command in self.commands:
             if command.handle_click(mouse_pos):
                 return True
-        return self.selected.handle_click(mouse_pos) or self.minimap.handle_click(mouse_pos)
+        if self.selected.handle_click(mouse_pos):
+            return True
+        if self.minimap.handle_click(mouse_pos):
+            return True
+        return False
 
     def handle_object_click(self, obj):
         self.selected.handle_object_click(obj)
         self._place_commands(obj)
 
-    def handle_empty_click(self):
+    def handle_object_deletion(self):
+        self.selected.hide()
         self.commands.empty()
-        self.selected.handle_empty_click()
+
+    def handle_empty_click(self, mouse_pos: Tuple[int, int]):
+        self.commands.empty()
+        self.selected.handle_empty_click(mouse_pos)
 
     def draw_interface(self, screen: pygame.Surface):
         # make place of camera location visible
         screen.blit(map.Map().image, (-self.camera.x, -self.camera.y))
         # draw interface windows
+        self.selected.update()
         screen.blit(self.selected.image, self.selected.rect)
         self.minimap.update()
         screen.blit(self.minimap.image, self.minimap.rect)

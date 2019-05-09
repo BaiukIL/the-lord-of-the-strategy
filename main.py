@@ -6,10 +6,15 @@ from game_objects import empire, races, map
 from images import image
 
 
+def clear_callback(surf, rect):
+    surf.fill(map.Map().color, rect)
+
+
 def play_game():
     this_empire = empire.Empire(races.ELVES)
     this_empire.set_city("Nevborn")
 
+    rendered = None
     while True:
         mouse_pressed = False
 
@@ -26,23 +31,31 @@ def play_game():
         mouse_pos = pygame.mouse.get_pos()
 
         if mouse_pressed:
-            handled = Interface().handle_click(mouse_pos)
-            for obj in Game().objects:
-                if obj.handle_click(get_global_mouse_pos()):
-                    handled = True
+            handled = False
+            # check if any of interface windows can handle click
+            if Interface().handle_click(mouse_pos):
+                handled = True
+            else:
+                for obj in Game().objects:
+                    # check if any of game objects can handle click
+                    if obj.handle_click(get_global_mouse_pos()):
+                        handled = True
+                        break
             if not handled:
-                Interface().handle_empty_click()
+                Interface().handle_empty_click(mouse_pos)
 
         Interface().move_view(key, mouse_pos)
 
-        map.Map().clear()
         # place objects on map
-        Game().objects.draw(map.Map().image)
+        if rendered is not None:
+            Game().objects.clear(map.Map().image, clear_callback)
+        rendered = Game().objects.draw(map.Map().image)
+
         Interface().draw_interface(screen)
         # show screen
         pygame.display.flip()
         # cap the framerate
-        clock.tick(60)
+        clock.tick(40)
 
 
 if __name__ == '__main__':

@@ -6,4 +6,4 @@ from typing import *
 
 class Game(metaclass=templates.Singleton):
     empires: List[empire.Empire]
-    objects = pygame.sprite.Group()
+    objects = pygame.sprite.RenderUpdates()
