@@ -1,5 +1,6 @@
 import pygame
 import game
+from interface.interface import Interface
 from abc import ABC, abstractmethod
 from interface import window
 from images import image
@@ -22,7 +23,7 @@ class GameObject(window.Window, templates.Publisher, ABC):
             self.icon_image = pygame.image.load(image_file)
         else:
             self.icon_image = pygame.image.load(icon_file)
-        game.add_to_game(self)
+        game.Game.objects.add(self)
 
     @abstractmethod
     def info(self) -> Text:
@@ -32,14 +33,14 @@ class GameObject(window.Window, templates.Publisher, ABC):
         pass
 
     def click_action(self):
-        self.notify('click', self)
+        Interface().handle_object_click(self)
 
     def return_click_action(self):
-        game.Interface().handle_empty_click((0, 0))
+        Interface().handle_empty_click()
 
     def destroy(self):
         """This method is called when object is out of health"""
-        game.Interface().handle_object_deletion()
+        Interface().handle_object_deletion()
         self.kill()
 
     @property

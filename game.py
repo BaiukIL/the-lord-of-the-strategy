@@ -1,13 +1,7 @@
 import pygame
 import templates
 from game_objects import empire
-from interface.interface import Interface
 from typing import *
-
-
-def add_to_game(obj: templates.Publisher):
-    Game().objects.add(obj)
-    obj.subscribe('click', Interface())
 
 
 class Game(metaclass=templates.Singleton):

@@ -199,8 +199,7 @@ class ObjectInteractionCommand(Command):
 
 
 class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Singleton):
-    """Interface is a mediator which coordinates interface windows work.
-    It also listens to objects clicks."""
+    """Interface is a mediator which coordinates interface windows work."""
 
     camera = Camera()
     selected = Selected()
@@ -221,7 +220,7 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
             return True
         return False
 
-    def receive_notification(self, obj):
+    def handle_object_click(self, obj):
         self.selected.handle_object_click(obj)
         self._place_commands(obj)
 
@@ -229,7 +228,7 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
         self.selected.hide()
         self.commands.empty()
 
-    def handle_empty_click(self, mouse_pos: Tuple[int, int]):
+    def handle_empty_click(self, mouse_pos: Tuple[int, int] = (0, 0)):
         self.commands.empty()
         self.selected.handle_empty_click(mouse_pos)
 
