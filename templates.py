@@ -1,5 +1,6 @@
 from typing import *
 from collections import defaultdict
+from abc import ABC, abstractmethod
 
 
 class Singleton(type):
@@ -59,3 +60,19 @@ class Publisher:
 class Subscriber:
     def receive_notification(self, *args):
         pass
+
+
+class Builder(ABC):
+    """"""
+    @abstractmethod
+    def reset(self):
+        pass
+
+    @abstractmethod
+    def get_result(self):
+        pass
+
+
+class Director(ABC):
+    """"""
+    builder: Builder

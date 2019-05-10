@@ -1,42 +1,61 @@
-import sys
+"""PROXY!!!"""
 
 
-path = 'images/'
+import pygame
+from game_objects import races
+import templates
 
-ICON = '{}icon.jpeg'.format(path)
-POINTER = '{}pointer.jpg'.format(path)
-MAP = '{}pixel background.jpg'.format(path)
-MINIMAP_FRAME = '{}minimap_frame.jpg'.format(path)
 
-BUILD = '{}build icon.png'.format(path)
-REMOVE = '{}destroy icon.png'.format(path)
-UPGRADE = '{}upgrade icon.png'.format(path)
+def get_image(empire=None):
+    """
+    If no object specified, returns race-independent images"""
+    if empire is None:
+        return ImageProxy()
+    elif empire.race == races.ELVES:
+        return ElvesImages()
+    elif empire.race == races.ORCS:
+        return OrcsImages()
+    elif empire.race == races.DWARFS:
+        return DwarfsImages()
 
-CITY = '{}city.png'.format(path)
-ELVES_CITY = '{}city.png'.format(path)
-ORCS_CITY = '{}city.png'.format(path)
-DWARFS_CITY = '{}city.png'.format(path)
 
-ELVES_BARRACK = '{}barrack_tent.png'.format(path)
-ORCS_BARRACK = '{}barrack.png'.format(path)
-DWARFS_BARRACK = '{}barrack.png'.format(path)
+class ImageProxy(metaclass=templates.Singleton):
+    def __init__(self):
+        for member in dir(self):
+            if not callable(member) and not member.startswith("__"):
+                setattr(self, member, pygame.image.load('images/sources/{}'.format(getattr(self, member))))
+    
+    ICON = 'icon.jpeg'
+    BUILD = 'build icon.png'
+    REMOVE = 'destroy icon.png'
+    UPGRADE = 'upgrade icon.png'
+    
+    
+class ElvesImages(ImageProxy):
+    CITY = 'elves city.png'
+    BARRACK = 'elves barrack.png'
+    MINE = 'elves mine.png'
+    WALL = 'elves wall.png'
+    BUILDER = 'elves builder.png'
+    SCOUT = 'elves scout.png'
+    WARRIOR = 'elves warrior.png'
+    
 
-ELVES_WALL = '{}wall.png'.format(path)
-ORCS_WALL = '{}wall.png'.format(path)
-DWARFS_WALL = '{}wall.png'.format(path)
+class OrcsImages(ImageProxy):
+    CITY = 'orcs city.png'
+    BARRACK = 'orcs barrack.png'
+    MINE = 'orcs mine.png'
+    WALL = 'orcs wall.png'
+    BUILDER = 'orcs builder.png'
+    SCOUT = 'orcs scout.png'
+    WARRIOR = 'orcs warrior.png'
 
-ELVES_MINE = '{}mine.png'.format(path)
-ORCS_MINE = '{}mine.png'.format(path)
-DWARFS_MINE = '{}mine.png'.format(path)
-
-ELVES_BUILDER = ''
-ORCS_BUILDER = ''
-DWARFS_BUILDER = ''
-
-ELVES_SCOUT = ''
-ORCS_SCOUT = ''
-DWARFS_SCOUT = ''
-
-ELVES_WARRIOR = ''
-ORCS_WARRIOR = ''
-DWARFS_WARRIOR = ''
+    
+class DwarfsImages(ImageProxy):
+    CITY = 'dwarfs city.png'
+    BARRACK = 'dwarfs barrack.png'
+    MINE = 'dwarfs mine.png'
+    WALL = 'dwarfs wall.png'
+    BUILDER = 'dwarfs builder.png'
+    SCOUT = 'dwarfs scout.png'
+    WARRIOR = 'dwarfs warrior.png'

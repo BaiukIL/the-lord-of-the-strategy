@@ -1,9 +1,9 @@
 import pygame
 from interface import window
-from game_objects import map
+import map
 from configs import interface_config
 import templates
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import *
 
 
@@ -109,7 +109,7 @@ class Selected(window.Window):
         # interface_config.BORDERS_SIZE is indent from left side of selected screen
         line_pos = [0, 0]
         for line in text.split('\n'):
-            self._image.blit(font.render(line, True, pygame.Color('white')), line_pos)
+            self._image.blit(font.render(line, True, interface_config.SELECTED_TEXT_COLOR), line_pos)
             line_pos[1] += indent
 
 
@@ -147,8 +147,8 @@ class Command(window.Window, ABC):
     _action: Callable
     activated: bool = False
 
-    def __init__(self, image_file: str, action: Callable, message: Text):
-        window.Window.__init__(self, interface_config.COMMAND_SIZE, pygame.image.load(image_file))
+    def __init__(self, image: pygame.Surface, action: Callable, message: Text):
+        window.Window.__init__(self, interface_config.COMMAND_SIZE, image)
         self._action = action
         self._hint_message = message
 
@@ -184,11 +184,6 @@ class NoInteractionCommand(Command):
 
 
 class MouseInteractionCommand(Command):
-    def __init__(self, image_file: str, action: Callable, message: Text):
-        window.Window.__init__(self, interface_config.COMMAND_SIZE, pygame.image.load(image_file))
-        self._action = action
-        self._hint_message = message
-
     def handle_empty_click(self, mouse_pos: Tuple[int, int]):
         self.execute(mouse_pos)
 

@@ -1,7 +1,3 @@
-from enum import Enum, auto
-from abc import ABC
-
-
 class RaceError(Exception):
     pass
 

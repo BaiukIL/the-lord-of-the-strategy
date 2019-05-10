@@ -2,8 +2,9 @@ import pygame
 from game import Game
 from interface.interface import Interface, get_global_mouse_pos
 from configs import interface_config
-from game_objects import empire, races, map
-from images import image
+from game_objects import empire, races
+from images import image as img
+import map
 
 
 def clear_callback(surf, rect):
@@ -63,7 +64,7 @@ if __name__ == '__main__':
 
     screen = pygame.display.set_mode(interface_config.SCR_SIZE)
     pygame.display.set_caption("the Lord of the Strategy")
-    icon_surf = pygame.image.load(image.ICON)
+    icon_surf = img.get_image().ICON
     pygame.display.set_icon(icon_surf)
     clock = pygame.time.Clock()
 

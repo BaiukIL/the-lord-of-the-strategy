@@ -2,10 +2,6 @@ from game_objects import army, city
 from typing import *
 
 
-class EmpireError(Exception):
-    pass
-
-
 class Empire:
     """"""
 
@@ -45,3 +41,7 @@ class Empire:
             for _city in self._cities.values():
                 result += " - {}".format(_city.name)
         return result
+
+
+class EmpireError(Exception):
+    pass
