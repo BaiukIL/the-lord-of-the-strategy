@@ -52,7 +52,7 @@ class Unit(base_object.GameObject, health_mod.Health, ABC):
 
 class Warrior(Unit, damage_mod.Damage):
 
-    attack_target: base_object.GameObject = None
+    attack_target = pygame.sprite.GroupSingle()
     attack_delay: int = 3   # in seconds
     fight_distance: int = 150
 
@@ -65,17 +65,19 @@ class Warrior(Unit, damage_mod.Damage):
             self.stop_move()
             self._attack_animation()
             self.hit(obj)
-            if not obj.is_alive():
-                self.attack_target = None
         else:
             self.set_move_to(obj.rect.center)
 
     def _attack_animation(self):
         pass
 
+    def handle_empty_click(self, mouse_pos: Tuple[int, int]):
+        self.attack_target.empty()
+        self.set_move_to(mouse_pos)
+
     def handle_object_click(self, obj: base_object.GameObject):
         if obj.empire is not self.empire:
-            self.attack_target = obj
+            self.attack_target.add(obj)
 
     def info(self) -> Text:
         result = str()
@@ -87,8 +89,8 @@ class Warrior(Unit, damage_mod.Damage):
         return result
 
     def update(self, *args):
-        if self.attack_target is not None:
-            self.attack(self.attack_target)
+        for target in self.attack_target:
+            self.attack(target)
         self.move()
 
 

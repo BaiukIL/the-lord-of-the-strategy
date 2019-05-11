@@ -1,7 +1,7 @@
 import pygame
 import game
 from interface.interface import Interface
-from abc import ABC, abstractmethod
+from abc import ABC
 from interface import window
 from game_objects.object_properties import health as hl
 from images import image as img
@@ -35,7 +35,7 @@ class GameObject(window.Window, hl.Health, templates.Publisher, ABC):
 
     def destroy(self):
         """This method is called when object is out of health"""
-        Interface().handle_object_deletion()
+        Interface().hide_all()
         self.kill()
 
     # Window methods
@@ -43,7 +43,7 @@ class GameObject(window.Window, hl.Health, templates.Publisher, ABC):
         Interface().handle_object_click(self)
 
     def return_click_action(self):
-        Interface().hide()
+        Interface().hide_all()
         pass
 
     def handle_empty_click(self, mouse_pos: Tuple[int, int]):

@@ -53,40 +53,40 @@ class ElvesBarrack(Barrack):
     def _create_builder(self) -> unit_mod.Builder:
         return unit_mod.ElfBuilder(empire=self.empire, 
                                    health=4, 
-                                   speed=4,
+                                   speed=7,
                                    image=img.get_image(self.empire).BUILDER, 
-                                   size=(100, 100))
+                                   size=(90, 90))
 
     def _create_scout(self) -> unit_mod.Scout:
         return unit_mod.ElfScout(empire=self.empire, 
                                  health=6, 
-                                 speed=4,
+                                 speed=10,
                                  image=img.get_image(self.empire).SCOUT, 
-                                 size=(100, 100))
+                                 size=(90, 90))
 
     def _create_warrior(self) -> unit_mod.Warrior:
         return unit_mod.ElfWarrior(empire=self.empire, 
                                    health=6, 
-                                   speed=4,
+                                   speed=5,
                                    damage=1, 
                                    image=img.get_image(self.empire).WARRIOR, 
-                                   size=(100, 100))
+                                   size=(90, 90))
 
 
 class OrcsBarrack(Barrack):
     def _create_builder(self) -> unit_mod.Builder:
         return unit_mod.OrcBuilder(empire=self.empire, 
-                                   health=2, 
-                                   speed=4,
+                                   health=2,
+                                   speed=6,
                                    image=img.get_image(self.empire).BUILDER, 
-                                   size=(100, 100))
+                                   size=(90, 90))
 
     def _create_scout(self) -> unit_mod.Scout:
         return unit_mod.OrcScout(empire=self.empire, 
                                  health=3, 
-                                 speed=4,
+                                 speed=8,
                                  image=img.get_image(self.empire).SCOUT, 
-                                 size=(100, 100))
+                                 size=(90, 90))
 
     def _create_warrior(self) -> unit_mod.Warrior:
         return unit_mod.OrcWarrior(empire=self.empire, 
@@ -94,28 +94,28 @@ class OrcsBarrack(Barrack):
                                    speed=4,
                                    damage=1, 
                                    image=img.get_image(self.empire).WARRIOR, 
-                                   size=(100, 100))
+                                   size=(90, 90))
 
 
 class DwarfsBarrack(Barrack):
     def _create_builder(self) -> unit_mod.Builder:
         return unit_mod.DwarfBuilder(empire=self.empire,
                                      health=2,
-                                     speed=4,
+                                     speed=6,
                                      image=img.get_image(self.empire).BUILDER,
-                                     size=(100, 100))
+                                     size=(90, 90))
 
     def _create_scout(self) -> unit_mod.Scout:
         return unit_mod.DwarfScout(empire=self.empire,
                                    health=3,
-                                   speed=4,
+                                   speed=7,
                                    image=img.get_image(self.empire).SCOUT,
-                                   size=(100, 100))
+                                   size=(90, 90))
 
     def _create_warrior(self) -> unit_mod.Warrior:
         return unit_mod.DwarfWarrior(empire=self.empire,
                                      health=3,
-                                     speed=4,
+                                     speed=3,
                                      damage=1,
                                      image=img.get_image(self.empire).WARRIOR,
-                                     size=(100, 100))
+                                     size=(90, 90))

@@ -60,13 +60,13 @@ def play_game():
         # show screen
         pygame.display.flip()
         # cap the framerate
-        clock.tick(60)
+        clock.tick(40)
 
 
 if __name__ == '__main__':
     pygame.init()
 
-    screen = pygame.display.set_mode(interface_config.SCR_SIZE)
+    screen = pygame.display.set_mode(interface_config.SCR_SIZE, pygame.FULLSCREEN)
     pygame.display.set_caption("the Lord of the Strategy")
     icon_surf = img.get_image().ICON
     pygame.display.set_icon(icon_surf)

@@ -46,10 +46,6 @@ class Selected(window.Window):
     """A window which is located in the left bottom corner of the screen
     and responsible for showing selected object info."""
 
-    """The most recent chosen (selected) game object"""
-    buffer = None
-    command: 'Command' = None
-
     def __init__(self):
         window.Window.__init__(self, interface_config.SELECTED_SIZE)
         self.rect.bottomleft = (0, interface_config.SCR_HEIGHT)
@@ -59,42 +55,11 @@ class Selected(window.Window):
 
     def hide(self):
         self.clear()
-        self.change_object(None)
-        self.change_command(None)
         self.change_state(window.HiddenWindowState(self))
 
-    def change_object(self, obj: window.Window or None):
-        if self.buffer is not None:
-            self.buffer.passive()
-        self.buffer = obj
-
-    def change_command(self, command: 'Command' or None):
-        if self.command is not None:
-            self.command.passive()
-        self.command = command
-
-    def handle_empty_click(self, global_mouse_pos: Tuple[int, int]):
-        """If command is activated and can handle empty click,
-         I'll be executed"""
-        if self.buffer is not None:
-            self.buffer.handle_empty_click(global_mouse_pos)
-        if self.command is not None:
-            if self.command.activated:
-                self.command.handle_empty_click(global_mouse_pos)
-        self.hide()
-
     def handle_object_click(self, obj):
-        """If command is activated and can handle object click,
-         I'll be executed"""
-        if self.buffer is not None:
-            self.buffer.handle_object_click(obj)
-        if self.command is not None:
-            if self.command.activated:
-                self.command.handle_object_click(obj)
         self.clear()
         self.active()
-        self.change_object(obj)
-        self.change_command(None)
         self._place_image(obj._image)
         self._place_text(obj.info())
 
@@ -142,7 +107,7 @@ class Minimap(window.Window):
         pygame.draw.rect(self._image, self._borders_color, self._frame, 1)
 
 
-class Command(window.Window, ABC):
+class Command(window.Window):
     """A window which is located in the middle bottom of the screen.
     Represents commands which selected object has."""
 
@@ -163,10 +128,10 @@ class Command(window.Window, ABC):
         self.activated = False
 
     def click_action(self):
-        Interface().selected.change_command(self)
+        Interface().change_selected_command(self)
 
     def return_click_action(self):
-        Interface().selected.change_command(None)
+        Interface().change_selected_command(None)
 
     def handle_empty_click(self, mouse_pos: Tuple[int, int]):
         pass
@@ -181,7 +146,7 @@ class Command(window.Window, ABC):
 
 class NoInteractionCommand(Command):
     def click_action(self):
-        Interface().selected.change_command(self)
+        Interface().change_selected_command(self)
         self.execute()
 
 
@@ -203,6 +168,31 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
     minimap = Minimap()
     commands = pygame.sprite.Group()
 
+    """The most recent chosen (selected) game object 
+    and command respectively"""
+    buffer = pygame.sprite.GroupSingle()
+    command = pygame.sprite.GroupSingle()
+
+    def hide_all(self):
+        self.commands.empty()
+        self.selected.hide()
+        self.change_selected_object(None)
+        self.change_selected_command(None)
+
+    def change_selected_object(self, obj):
+        for buffered in self.buffer:
+            buffered.passive()
+        self.buffer.empty()
+        if obj is not None:
+            self.buffer.add(obj)
+
+    def change_selected_command(self, command: 'Command' or None):
+        for com in self.command:
+            com.passive()
+        self.command.empty()
+        if command is not None:
+            self.command.add(command)
+
     def move_view(self, key, mouse_pos: Tuple[int, int]):
         self.camera.move_view(key, mouse_pos)
         self.minimap.move_frame(self.camera.topleft)
@@ -217,21 +207,26 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
             return True
         return False
 
+    def handle_empty_click(self, mouse_pos: Tuple[int, int] = (0, 0)):
+        # Check if selected object can handle empty click
+        for buffered in self.buffer:
+            buffered.handle_empty_click(get_global_mouse_pos(mouse_pos))
+        # If command is activated and can handle empty click, it'll be executed
+        for com in self.command:
+            if com.activated:
+                com.handle_empty_click(get_global_mouse_pos(mouse_pos))
+        self.hide_all()
+
     def handle_object_click(self, obj):
+        for buffered in self.buffer:
+            buffered.handle_object_click(obj)
+        for com in self.command:
+            if com.activated:
+                com.handle_object_click(obj)
+        self.change_selected_object(obj)
+        self.change_selected_command(None)
         self.selected.handle_object_click(obj)
         self._place_commands(obj)
-
-    def handle_object_deletion(self):
-        self.selected.hide()
-        self.commands.empty()
-
-    def handle_empty_click(self, mouse_pos: Tuple[int, int] = (0, 0)):
-        self.commands.empty()
-        self.selected.handle_empty_click(get_global_mouse_pos(mouse_pos))
-
-    def hide(self):
-        self.commands.empty()
-        self.selected.hide()
 
     def draw_interface(self, screen: pygame.Surface):
         # make place of camera location visible
