@@ -12,8 +12,12 @@ def clear_callback(surf, rect):
 
 
 def play_game():
-    this_empire = empire.Empire(races.ELVES)
+    this_empire = empire.Empire(races.ORCS, name='MyEmpire')
     this_empire.set_city("Nevborn")
+
+    enemy_empire = empire.Empire(races.DWARFS, name='Erewen')
+    enemy_empire.set_city("Nuhen")
+    enemy_empire.get_city("Nuhen").rect.center = 600, 600
 
     rendered = None
     while True:
@@ -39,9 +43,8 @@ def play_game():
             else:
                 for obj in Game().objects:
                     # check if any of game objects can handle click
-                    if obj.handle_click(get_global_mouse_pos()):
+                    if obj.handle_click(get_global_mouse_pos(mouse_pos)):
                         handled = True
-                        break
             if not handled:
                 Interface().handle_empty_click(mouse_pos)
 
@@ -50,13 +53,14 @@ def play_game():
         # place objects on map
         if rendered is not None:
             Game().objects.clear(map.Map().image, clear_callback)
+        Game().objects.update()
         rendered = Game().objects.draw(map.Map().image)
 
         Interface().draw_interface(screen)
         # show screen
         pygame.display.flip()
         # cap the framerate
-        clock.tick(40)
+        clock.tick(60)
 
 
 if __name__ == '__main__':

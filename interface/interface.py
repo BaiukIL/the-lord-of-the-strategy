@@ -7,10 +7,8 @@ from abc import ABC
 from typing import *
 
 
-def get_global_mouse_pos() -> Tuple[int, int]:
+def get_global_mouse_pos(mouse_pos: Tuple[int, int]) -> Tuple[int, int]:
     """Mouse position with a glance to camera position on the map"""
-
-    mouse_pos = pygame.mouse.get_pos()
     return mouse_pos[0] + Interface().camera.x, mouse_pos[1] + Interface().camera.y
 
 
@@ -21,7 +19,7 @@ class Camera(pygame.Rect):
         super().__init__(interface_config.CAMERA_START_POS, interface_config.SCR_SIZE)
         self._speed = interface_config.CAMERA_SPEED
 
-    def move_view(self, key, mouse_pos):
+    def move_view(self, key, mouse_pos: Tuple[int, int]):
         if key[pygame.K_w] or mouse_pos[1] == 0:
             self.y -= self._speed
         if key[pygame.K_s] or mouse_pos[1] == interface_config.SCR_HEIGHT - 1:
@@ -49,7 +47,7 @@ class Selected(window.Window):
     and responsible for showing selected object info."""
 
     """The most recent chosen (selected) game object"""
-    buffer: window.Window = None
+    buffer = None
     command: 'Command' = None
 
     def __init__(self):
@@ -75,17 +73,21 @@ class Selected(window.Window):
             self.command.passive()
         self.command = command
 
-    def handle_empty_click(self, mouse_pos: Tuple[int, int]):
+    def handle_empty_click(self, global_mouse_pos: Tuple[int, int]):
         """If command is activated and can handle empty click,
          I'll be executed"""
+        if self.buffer is not None:
+            self.buffer.handle_empty_click(global_mouse_pos)
         if self.command is not None:
             if self.command.activated:
-                self.command.handle_empty_click(get_global_mouse_pos())
+                self.command.handle_empty_click(global_mouse_pos)
         self.hide()
 
     def handle_object_click(self, obj):
         """If command is activated and can handle object click,
          I'll be executed"""
+        if self.buffer is not None:
+            self.buffer.handle_object_click(obj)
         if self.command is not None:
             if self.command.activated:
                 self.command.handle_object_click(obj)
@@ -225,7 +227,11 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
 
     def handle_empty_click(self, mouse_pos: Tuple[int, int] = (0, 0)):
         self.commands.empty()
-        self.selected.handle_empty_click(mouse_pos)
+        self.selected.handle_empty_click(get_global_mouse_pos(mouse_pos))
+
+    def hide(self):
+        self.commands.empty()
+        self.selected.hide()
 
     def draw_interface(self, screen: pygame.Surface):
         # make place of camera location visible

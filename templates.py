@@ -54,11 +54,11 @@ class Publisher:
 
     def notify(self, event, *args):
         for subscriber in self.subscribers[event]:
-            subscriber.receive_notification(*args)
+            subscriber.receive_notification(event, *args)
 
 
 class Subscriber:
-    def receive_notification(self, *args):
+    def receive_notification(self, event, *args):
         pass
 
 

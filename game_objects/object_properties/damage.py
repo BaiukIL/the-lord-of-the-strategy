@@ -1,5 +1,3 @@
-class DamageError(Exception):
-    pass
 
 
 class Damage:
@@ -34,3 +32,7 @@ class Damage:
 
     def hit(self, obj):
         obj.decrease_health(self._damage)
+
+
+class DamageError(Exception):
+    pass

@@ -40,6 +40,7 @@ class Barrack(base_building.Building, ABC):
         self.empire.army.recruit_unit(unit=unit)
         unit.rect.topleft = self.rect.bottomleft
         unit.rect.y += 20
+        unit.update_position()
 
     @property
     def no_interaction_commands(self) -> List[Tuple[pygame.Surface, Callable, Text]]:
@@ -52,21 +53,21 @@ class ElvesBarrack(Barrack):
     def _create_builder(self) -> unit_mod.Builder:
         return unit_mod.ElfBuilder(empire=self.empire, 
                                    health=4, 
-                                   speed=2, 
+                                   speed=4,
                                    image=img.get_image(self.empire).BUILDER, 
                                    size=(100, 100))
 
     def _create_scout(self) -> unit_mod.Scout:
         return unit_mod.ElfScout(empire=self.empire, 
                                  health=6, 
-                                 speed=2, 
+                                 speed=4,
                                  image=img.get_image(self.empire).SCOUT, 
                                  size=(100, 100))
 
     def _create_warrior(self) -> unit_mod.Warrior:
         return unit_mod.ElfWarrior(empire=self.empire, 
                                    health=6, 
-                                   speed=1, 
+                                   speed=4,
                                    damage=1, 
                                    image=img.get_image(self.empire).WARRIOR, 
                                    size=(100, 100))
@@ -76,21 +77,21 @@ class OrcsBarrack(Barrack):
     def _create_builder(self) -> unit_mod.Builder:
         return unit_mod.OrcBuilder(empire=self.empire, 
                                    health=2, 
-                                   speed=2, 
+                                   speed=4,
                                    image=img.get_image(self.empire).BUILDER, 
                                    size=(100, 100))
 
     def _create_scout(self) -> unit_mod.Scout:
         return unit_mod.OrcScout(empire=self.empire, 
                                  health=3, 
-                                 speed=2, 
+                                 speed=4,
                                  image=img.get_image(self.empire).SCOUT, 
                                  size=(100, 100))
 
     def _create_warrior(self) -> unit_mod.Warrior:
         return unit_mod.OrcWarrior(empire=self.empire, 
                                    health=3, 
-                                   speed=1, 
+                                   speed=4,
                                    damage=1, 
                                    image=img.get_image(self.empire).WARRIOR, 
                                    size=(100, 100))
@@ -100,21 +101,21 @@ class DwarfsBarrack(Barrack):
     def _create_builder(self) -> unit_mod.Builder:
         return unit_mod.DwarfBuilder(empire=self.empire,
                                      health=2,
-                                     speed=2,
+                                     speed=4,
                                      image=img.get_image(self.empire).BUILDER,
                                      size=(100, 100))
 
     def _create_scout(self) -> unit_mod.Scout:
         return unit_mod.DwarfScout(empire=self.empire,
                                    health=3,
-                                   speed=2,
+                                   speed=4,
                                    image=img.get_image(self.empire).SCOUT,
                                    size=(100, 100))
 
     def _create_warrior(self) -> unit_mod.Warrior:
         return unit_mod.DwarfWarrior(empire=self.empire,
                                      health=3,
-                                     speed=1,
+                                     speed=4,
                                      damage=1,
                                      image=img.get_image(self.empire).WARRIOR,
                                      size=(100, 100))
