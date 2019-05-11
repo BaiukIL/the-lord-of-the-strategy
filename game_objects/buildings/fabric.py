@@ -37,59 +37,68 @@ class Fabric(ABC):
 
 class ElvesFabric(Fabric):
     def build_barrack(self) -> barrack.Barrack:
-        return barrack.ElvesBarrack(health=10, 
-                                    empire=self.empire, 
+        return barrack.ElvesBarrack(health=10,
+                                    cost=10,
+                                    empire=self.empire,
                                     image=img.get_image(self.empire).BARRACK,
-                                    size=(200, 200))
+                                    size=(170, 170))
 
     def build_mine(self) -> mine.Mine:
         return mine.Mine(health=5,
+                         cost=10,
                          empire=self.empire,
                          image=img.get_image(self.empire).MINE,
-                         size=(200, 200))
+                         size=(150, 150))
 
     def build_wall(self) -> wall.Wall:
-        return wall.Wall(health=3, 
-                         empire=self.empire, 
+        return wall.Wall(health=3,
+                         cost=10,
+                         empire=self.empire,
                          image=img.get_image(self.empire).WALL,
-                         size=(50, 200))
+                         size=(30, 100))
 
 
 class OrcsFabric(Fabric):
     def build_barrack(self) -> barrack.Barrack:
-        return barrack.OrcsBarrack(health=10, 
-                                   empire=self.empire, 
+        return barrack.OrcsBarrack(health=10,
+                                   cost=10,
+                                   empire=self.empire,
                                    image=img.get_image(self.empire).BARRACK,
-                                   size=(200, 200))
+                                   size=(170, 170))
 
     def build_mine(self) -> mine.Mine:
-        return mine.Mine(health=5, 
-                         empire=self.empire, 
+        return mine.Mine(health=5,
+                         cost=10,
+                         empire=self.empire,
                          image=img.get_image(self.empire).MINE,
-                         size=(200, 200))
+                         size=(150, 150))
 
     def build_wall(self) -> wall.Wall:
-        return wall.Wall(health=3, 
-                         empire=self.empire, 
+        return wall.Wall(health=3,
+                         cost=10,
+                         empire=self.empire,
                          image=img.get_image(self.empire).WALL,
-                         size=(10, 50))
+                         size=(30, 100))
 
 
 class DwarfsFabric(Fabric):
     def build_barrack(self) -> barrack.Barrack:
-        return barrack.DwarfsBarrack(health=15, 
-                                     empire=self.empire, 
+        return barrack.DwarfsBarrack(health=15,
+                                     cost=10,
+                                     empire=self.empire,
                                      image=img.get_image(self.empire).BARRACK,
-                                     size=(200, 200))
+                                     size=(170, 170))
 
     def build_mine(self) -> mine.Mine:
-        return mine.Mine(health=8, 
-                         empire=self.empire, 
+        return mine.Mine(health=8,
+                         cost=10,
+                         empire=self.empire,
                          image=img.get_image(self.empire).MINE,
-                         size=(200, 200))
+                         size=(150, 150))
 
     def build_wall(self) -> wall.Wall:
-        return wall.Wall(health=5, 
-                         empire=self.empire, 
+        return wall.Wall(health=5,
+                         cost=10,
+                         empire=self.empire,
                          image=img.get_image(self.empire).WALL,
-                         size=(10, 50))
+                         size=(30, 100))

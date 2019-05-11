@@ -3,7 +3,6 @@ from interface import window
 import map
 from configs import interface_config
 import templates
-from abc import ABC
 from typing import *
 
 
@@ -57,22 +56,22 @@ class Selected(window.Window):
         self.clear()
         self.change_state(window.HiddenWindowState(self))
 
-    def handle_object_click(self, obj):
+    def select_object(self, obj):
         self.clear()
         self.active()
         self._place_image(obj._image)
         self._place_text(obj.info())
 
     def _place_image(self, image: pygame.Surface):
-        self._image.blit(
-            pygame.transform.scale(image, (self.rect.width // 2,
-                                           self.rect.height // 2)),
-            (0, self.rect.height // 2))
+        selected_img_side_size = min(self.rect.width // 2, self.rect.height // 2)
+        self._image.blit(pygame.transform.scale(image, (selected_img_side_size,
+                                                        selected_img_side_size)),
+                         (self.rect.width // 2, self.rect.height // 2))
 
     def _place_text(self, text: Text):
         font = pygame.font.SysFont(name='Ani', size=20)
         # vertical indent between lines
-        indent = 20
+        indent = 25
         # interface_config.BORDERS_SIZE is indent from left side of selected screen
         line_pos = [0, 0]
         for line in text.split('\n'):
@@ -160,18 +159,19 @@ class ObjectInteractionCommand(Command):
         self.execute(obj)
 
 
-class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Singleton):
+class Interface(templates.Handler, metaclass=templates.Singleton):
     """Interface is a mediator which coordinates interface windows work."""
 
-    camera = Camera()
-    selected = Selected()
-    minimap = Minimap()
-    commands = pygame.sprite.Group()
-
-    """The most recent chosen (selected) game object 
-    and command respectively"""
-    buffer = pygame.sprite.GroupSingle()
-    command = pygame.sprite.GroupSingle()
+    def __init__(self, player):
+        self.player = player
+        self.camera = Camera()
+        self.selected = Selected()
+        self.minimap = Minimap()
+        self.commands = pygame.sprite.Group()
+        # The most recent chosen (selected) game object
+        # and command respectively
+        self.buffer = pygame.sprite.GroupSingle()
+        self.command = pygame.sprite.GroupSingle()
 
     def hide_all(self):
         self.commands.empty()
@@ -207,7 +207,7 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
             return True
         return False
 
-    def handle_empty_click(self, mouse_pos: Tuple[int, int] = (0, 0)):
+    def handle_empty_click(self, mouse_pos: Tuple[int, int]):
         # Check if selected object can handle empty click
         for buffered in self.buffer:
             buffered.handle_empty_click(get_global_mouse_pos(mouse_pos))
@@ -225,8 +225,12 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
                 com.handle_object_click(obj)
         self.change_selected_object(obj)
         self.change_selected_command(None)
-        self.selected.handle_object_click(obj)
-        self._place_commands(obj)
+        self.selected.select_object(obj)
+        self.commands.empty()
+        # if given object belongs to player's empire,
+        # let work with it. Otherwise do not show commands
+        if obj.empire is self.player.empire:
+            self._place_commands(obj)
 
     def draw_interface(self, screen: pygame.Surface):
         # make place of camera location visible
@@ -239,7 +243,6 @@ class Interface(templates.Handler, templates.Subscriber, metaclass=templates.Sin
         self.commands.draw(screen)
 
     def _place_commands(self, obj):
-        self.commands.empty()
         pos = [self.selected.rect.right + interface_config.SELECTED_TO_COMMAND_INDENT,
                interface_config.SCR_HEIGHT - interface_config.COMMAND_HEIGHT - 10]
 

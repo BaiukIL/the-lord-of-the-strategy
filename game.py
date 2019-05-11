@@ -8,3 +8,4 @@ class Game(metaclass=templates.Singleton):
     """Mediator which links empires and interface"""
     empires: List[empire.Empire]
     objects = pygame.sprite.RenderUpdates()
+

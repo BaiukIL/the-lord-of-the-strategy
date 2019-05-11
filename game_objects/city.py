@@ -12,16 +12,16 @@ class CityError(Exception):
 
 class City(base_object.GameObject):
 
-    name: str
-    _buildings = pygame.sprite.Group()
-
     def __init__(self, name: str, empire):
         base_object.GameObject.__init__(self,
                                         empire=empire,
                                         health=20,
+                                        cost=100,
                                         image=img.get_image(empire).CITY,
                                         size=game_config.CITY_SIZE)
         self.name = name
+        self._buildings = pygame.sprite.Group()
+        self.empire._cities.add(self)
         self._fabric = fabric.Manufacture().create_fabric(self.empire)
 
     def build_barrack(self, mouse_pos: Tuple[int, int]):

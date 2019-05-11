@@ -1,5 +1,8 @@
+import os
+import sys
 import pygame
 from game import Game
+from player import Player, AI
 from interface.interface import Interface, get_global_mouse_pos
 from configs import interface_config
 from game_objects import empire, races
@@ -11,13 +14,47 @@ def clear_callback(surf, rect):
     surf.fill(map.Map().color, rect)
 
 
+def finish_game(win: bool):
+    if win:
+        pygame.draw.rect(screen, pygame.Color('yellow'), screen.get_rect())
+        final_message = 'You win!'
+    else:
+        pygame.draw.rect(screen, pygame.Color('red'), screen.get_rect())
+        final_message = 'You lose...'
+    font = pygame.font.SysFont(name='Ani', size=100)
+    screen.blit(font.render(final_message, True, pygame.Color('black')),
+                (screen.get_width() // 3 + 80, screen.get_height() // 5))
+    screen.blit(font.render('To restart the game, press S.', True, pygame.Color('black')),
+                (screen.get_width() // 6, screen.get_height() // 4 + 150))
+    screen.blit(font.render('To exit, press ESC.', True, pygame.Color('black')),
+                (screen.get_width() // 4 + 30, screen.get_height() // 4 + 300))
+
+    pygame.display.flip()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+                os.execl(sys.executable, sys.executable, *sys.argv)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return
+
+
 def play_game():
-    this_empire = empire.Empire(races.ORCS, name='MyEmpire')
-    this_empire.set_city("Nevborn")
+    my_empire = empire.Empire(races.ORCS, name='MyEmpire')
+    Player(my_empire)
+    my_empire.set_city("Nevborn")
+    my_city = my_empire.get_city("Nevborn")
+    my_city.rect.x = 500
+    my_city.rect.centery = map.Map().rect.centery
 
     enemy_empire = empire.Empire(races.DWARFS, name='Erewen')
+    AI(enemy_empire)
     enemy_empire.set_city("Nuhen")
-    enemy_empire.get_city("Nuhen").rect.center = 600, 600
+    enemy_city = enemy_empire.get_city("Nuhen")
+    enemy_city.rect.right = map.Map().rect.right - 4000
+    enemy_city.rect.centery = map.Map().rect.centery
+
+    Interface(Player())
 
     rendered = None
     while True:
@@ -48,25 +85,28 @@ def play_game():
             if not handled:
                 Interface().handle_empty_click(mouse_pos)
 
-        Interface().move_view(key, mouse_pos)
+        # If any of empires is out of cities, finish the game
+        if not my_empire.alive() or not enemy_empire.alive():
+            finish_game(win=my_empire.alive())
+            break
 
+        Interface().move_view(key, mouse_pos)
         # place objects on map
         if rendered is not None:
             Game().objects.clear(map.Map().image, clear_callback)
         Game().objects.update()
         rendered = Game().objects.draw(map.Map().image)
-
         Interface().draw_interface(screen)
         # show screen
         pygame.display.flip()
         # cap the framerate
-        clock.tick(40)
+        clock.tick(60)
 
 
 if __name__ == '__main__':
     pygame.init()
 
-    screen = pygame.display.set_mode(interface_config.SCR_SIZE, pygame.FULLSCREEN)
+    screen = pygame.display.set_mode(interface_config.SCR_SIZE)
     pygame.display.set_caption("the Lord of the Strategy")
     icon_surf = img.get_image().ICON
     pygame.display.set_icon(icon_surf)

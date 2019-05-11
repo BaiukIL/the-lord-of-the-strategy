@@ -1,3 +1,4 @@
+import pygame
 from game_objects import army, city
 from typing import *
 
@@ -5,41 +6,35 @@ from typing import *
 class Empire:
     """"""
 
-    race: str
-    name: str
-    resources: int = 500
-    _cities: Dict[str, city.City] = dict()
-    army: army.Army
-    friends: List['Empire']
-    enemies: List['Empire']
-
     def __init__(self, race, name: str = 'DefaultEmpireName'):
         self.race = race
         self.name = name
+        self.resources = 500
         self.army = army.Army(empire=self)
+        self._cities = pygame.sprite.Group()
+
+    def alive(self) -> bool:
+        return len(self._cities) != 0
 
     def set_city(self, name: str):
-        if name not in self._cities:
-            self._cities[name] = city.City(empire=self, name=name)
-        else:
-            raise EmpireError("City {} has already exists in {} cities".format(name, self.name))
+        for _city in self._cities:
+            if _city.name == name:
+                raise EmpireError("City {} has already exists in {} cities".format(name, self.name))
+        self._cities.add(city.City(empire=self, name=name))
 
     def get_city(self, name: str) -> city.City:
-        if name in self._cities:
-            return self._cities.get(name)
-        else:
-            raise EmpireError("{} city does not exist in {}".format(name, self.name))
+        for _city in self._cities:
+            if _city.name == name:
+                return _city
+        raise EmpireError("{} city does not exist in {}".format(name, self.name))
 
     def info(self) -> Text:
         result = str()
         result += "Name: {}\n".format(self.name)
         result += "Race: {}\n".format(self.race)
-        if len(self._cities) == 0:
-            result += "No cities\n"
-        else:
-            result += "Cities:\n"
-            for _city in self._cities.values():
-                result += " - {}".format(_city.name)
+        result += "Cities:\n"
+        for _city in self._cities:
+            result += " - {}".format(_city.name)
         return result
 
 

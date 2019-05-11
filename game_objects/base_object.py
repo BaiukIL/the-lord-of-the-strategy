@@ -3,25 +3,34 @@ import game
 from interface.interface import Interface
 from abc import ABC
 from interface import window
-from game_objects.object_properties import health as hl
 from images import image as img
-import templates
 from typing import *
 
 
-class GameObject(window.Window, hl.Health, templates.Publisher, ABC):
+class GameObject(window.Window, ABC):
     """Base class for all objects, belonging to any empire"""
 
-    cost: int
-
-    """Image which is drawn on Selected interface window"""
-    icon_image: pygame.Surface
-
-    def __init__(self, empire, health, image: pygame.Surface, size: Tuple[int, int]):
+    def __init__(self, empire, health, cost: int, image: pygame.Surface, size: Tuple[int, int]):
         self.empire = empire
+        self.health = health
+        self.cost = cost
         window.Window.__init__(self, size=size, image=image)
-        hl.Health.__init__(self, health=health)
         game.Game().objects.add(self)
+        self.icon_image = image
+
+    def increase_health(self, value: int):
+        if value >= 0:
+            self.health += value
+        else:
+            raise GameObjectError("Can't increase negative health: {}. Use decrease_health for this".format(value))
+
+    def decrease_health(self, value: int):
+        if value >= 0:
+            self.health -= value
+        else:
+            raise GameObjectError("Can't decrease negative health: {}. Use increase_health for this".format(value))
+        if self.health <= 0:
+            self.destroy()
 
     def info(self) -> Text:
         result = str()
@@ -70,3 +79,7 @@ class GameObject(window.Window, hl.Health, templates.Publisher, ABC):
     @property
     def object_interaction_commands(self) -> List[Tuple[pygame.Surface, Callable, Text]]:
         return []
+
+
+class GameObjectError(Exception):
+    pass

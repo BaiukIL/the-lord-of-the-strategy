@@ -1,13 +1,12 @@
 import pygame
-from game_objects.object_properties import health as health_mod, damage as damage_mod
 from game_objects import base_object
 from abc import ABC
 from typing import *
 
 
-class Unit(base_object.GameObject, health_mod.Health, ABC):
-    def __init__(self, empire, health: int, speed: int, size: Tuple[int, int], image: pygame.Surface):
-        base_object.GameObject.__init__(self, empire=empire, health=health, size=size, image=image)
+class Unit(base_object.GameObject, ABC):
+    def __init__(self, empire, health: int, speed: int, cost: int, size: Tuple[int, int], image: pygame.Surface):
+        base_object.GameObject.__init__(self, empire=empire, health=health, cost=cost, size=size, image=image)
         self.speed_val = speed
         self.vector = pygame.Vector2()
         self.cur_real_pos = list(self.rect.center)
@@ -50,21 +49,23 @@ class Unit(base_object.GameObject, health_mod.Health, ABC):
         self.move()
 
 
-class Warrior(Unit, damage_mod.Damage):
+class Warrior(Unit):
 
+    damage: int
     attack_target = pygame.sprite.GroupSingle()
     attack_delay: int = 3   # in seconds
     fight_distance: int = 150
 
-    def __init__(self, empire, health: int, speed: int, damage: int, size: Tuple[int, int], image: pygame.Surface):
-        Unit.__init__(self, empire=empire, size=size, image=image, health=health, speed=speed)
-        damage_mod.Damage.__init__(self, damage=damage)
+    def __init__(self, empire, health: int, speed: int, damage: int, cost: int, size: Tuple[int, int],
+                 image: pygame.Surface):
+        Unit.__init__(self, empire=empire, size=size, image=image, health=health, speed=speed, cost=cost)
+        self.damage = damage
 
     def attack(self, obj: base_object.GameObject):
         if pygame.Vector2(self.rect.center).distance_to(pygame.Vector2(obj.rect.center)) < self.fight_distance:
             self.stop_move()
             self._attack_animation()
-            self.hit(obj)
+            obj.decrease_health(self.damage)
         else:
             self.set_move_to(obj.rect.center)
 
