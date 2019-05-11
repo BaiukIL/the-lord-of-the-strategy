@@ -40,21 +40,22 @@ def finish_game(win: bool):
 
 
 def play_game():
+
     my_empire = empire.Empire(races.ORCS, name='MyEmpire')
     Player(my_empire)
+    enemy_empire = empire.Empire(races.DWARFS, name='Erewen')
+    AI(enemy_empire)
+    Interface(Player())
+
     my_empire.set_city("Nevborn")
     my_city = my_empire.get_city("Nevborn")
     my_city.rect.x = 500
     my_city.rect.centery = map.Map().rect.centery
 
-    enemy_empire = empire.Empire(races.DWARFS, name='Erewen')
-    AI(enemy_empire)
     enemy_empire.set_city("Nuhen")
     enemy_city = enemy_empire.get_city("Nuhen")
     enemy_city.rect.right = map.Map().rect.right - 4000
     enemy_city.rect.centery = map.Map().rect.centery
-
-    Interface(Player())
 
     rendered = None
     while True:

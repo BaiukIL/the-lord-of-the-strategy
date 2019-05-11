@@ -29,6 +29,9 @@ class Unit(base_object.GameObject, ABC):
             self.cur_real_pos[0] += self.vector.x
             self.cur_real_pos[1] += self.vector.y
             self.rect.center = self.cur_real_pos
+            for sprite in pygame.sprite.spritecollide(self, self._all_objects, False):
+                if sprite != self:
+                    self._fix_collision()
 
     def stop_move(self):
         self.set_move_to(self.rect.center)
@@ -48,18 +51,21 @@ class Unit(base_object.GameObject, ABC):
         """Sprite build-in empty method"""
         self.move()
 
+    def _fix_collision(self):
+        self.cur_real_pos[0] -= self.vector.x
+        self.cur_real_pos[1] -= self.vector.y
+        self.rect.center = self.cur_real_pos
+
 
 class Warrior(Unit):
-
-    damage: int
-    attack_target = pygame.sprite.GroupSingle()
-    attack_delay: int = 3   # in seconds
-    fight_distance: int = 150
 
     def __init__(self, empire, health: int, speed: int, damage: int, cost: int, size: Tuple[int, int],
                  image: pygame.Surface):
         Unit.__init__(self, empire=empire, size=size, image=image, health=health, speed=speed, cost=cost)
         self.damage = damage
+        self.attack_target = pygame.sprite.GroupSingle()
+        self.attack_delay = 3  # in seconds
+        self.fight_distance = 150
 
     def attack(self, obj: base_object.GameObject):
         if pygame.Vector2(self.rect.center).distance_to(pygame.Vector2(obj.rect.center)) < self.fight_distance:

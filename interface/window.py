@@ -5,14 +5,8 @@ from abc import ABC
 from typing import *
 
 
-class WindowException(Exception):
-    pass
-
-
 class WindowState(ABC):
     """State pattern"""
-
-    _window: 'Window'
 
     def __init__(self, window: 'Window'):
         self._window = window
@@ -62,24 +56,21 @@ class Window(pygame.sprite.Sprite, templates.Handler):
 
     _state: WindowState
 
-    _image: pygame.Surface
-    rect: pygame.Rect
+    # Message which appears when player points to the window
+    _hint_message = None
 
-    """Message which appears when player points to the window"""
-    _hint_message: str = None
+    _default_alpha = 255
 
-    _default_alpha: int = 255
+    # Indicator: shows if window has borders or not
+    _bordered = False
 
-    """Indicator: shows if window has borders or not"""
-    _bordered: bool = False
+    # If True, borders will never disappear
+    _constant_bordered = False
 
-    """If True, borders will never disappear"""
-    _constant_bordered: bool = False
+    # If False, borders will never appear
+    _never_bordered = False
 
-    """If False, borders will never appear"""
-    _never_bordered: bool = False
-
-    _borders_size: int = interface_config.BORDERS_SIZE
+    _borders_size = interface_config.BORDERS_SIZE
     _borders_color = interface_config.BORDERS_COLOR
 
     def __init__(self, size: Tuple[int, int], image: pygame.Surface = None):
@@ -97,13 +88,13 @@ class Window(pygame.sprite.Sprite, templates.Handler):
 
     def set_constant_bordered(self):
         if self._constant_bordered:
-            raise WindowException("Contradictory borders settings")
+            raise WindowError("Contradictory borders settings")
         self._constant_bordered = True
         self.add_borders()
 
     def set_never_bordered(self):
         if self._constant_bordered:
-            raise WindowException("Contradictory borders settings")
+            raise WindowError("Contradictory borders settings")
         self._never_bordered = True
         self.remove_borders()
 
@@ -160,3 +151,7 @@ class Window(pygame.sprite.Sprite, templates.Handler):
         """Empty method which can be overridden.
         It's called when window is clicked in active state"""
         pass
+
+
+class WindowError(Exception):
+    pass

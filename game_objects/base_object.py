@@ -16,6 +16,8 @@ class GameObject(window.Window, ABC):
         self.cost = cost
         window.Window.__init__(self, size=size, image=image)
         game.Game().objects.add(self)
+        self._all_objects = game.Game().objects
+        self._interface = Interface()
         self.icon_image = image
 
     def increase_health(self, value: int):
@@ -44,15 +46,15 @@ class GameObject(window.Window, ABC):
 
     def destroy(self):
         """This method is called when object is out of health"""
-        Interface().hide_all()
+        self._interface.hide_all()
         self.kill()
 
     # Window methods
     def click_action(self):
-        Interface().handle_object_click(self)
+        self._interface.handle_object_click(self)
 
     def return_click_action(self):
-        Interface().hide_all()
+        self._interface.hide_all()
         pass
 
     def handle_empty_click(self, mouse_pos: Tuple[int, int]):
