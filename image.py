@@ -1,6 +1,3 @@
-"""PROXY!!!"""
-
-
 import pygame
 from game_objects import races
 import singleton
