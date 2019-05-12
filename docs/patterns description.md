@@ -1,7 +1,7 @@
 ###### Patterns
 **Creational Patterns**
 ------------------------------------------------------------------------------------------------------------------------
-**ABSTRACT FACTORY**.
+**Abstract Factory**.
 
 Implementations: game_object/buildings/fabric.py
 
@@ -72,7 +72,7 @@ with empires, cities, armies without binding to its implementations (because the
 factory which returns base class object. However, it does not mean factory is useless: it allows us to
 control object's creation.
 ------------------------------------------------------------------------------------------------------------------------
-**SINGLETON**.
+**Singleton**.
 
 Implementations: Game(), Interface(), AI(), Map() (see game.py, interface/interface.py, AI.py and map.py
 respectively).
@@ -85,7 +85,7 @@ These classes should have just a single instance available to all game instances
 ------------------------------------------------------------------------------------------------------------------------
 **Structural Patterns**
 ------------------------------------------------------------------------------------------------------------------------
-**REFUSE BRIDGE**.
+**REFUSE Bridge**.
 
 It comes into use when we want to separate abstraction and realization. All connections are on the abstraction level
 and it would be great if realizations will be able to change in the future
@@ -95,7 +95,7 @@ object structures (like pygame.sprite.Group), which are very useful. It is impos
 these structures can only deal with objects derived from pygame.sprite.Sprite. Since my abstractions are not derived from
 this class they cannot be used in such structures. Thus bridge pattern as composition of entities is not suitable.
 ------------------------------------------------------------------------------------------------------------------------
-**COMPOSITE & Iterator & Visitor**
+**Composite & Iterator & Visitor**
 
 Implementations: game_objects/army.py
 
@@ -105,7 +105,7 @@ Notice that composite just stores object and sets the hierarchy. To iterate over
 However, it's good idea to add visitor, for iterator should not know about nodes realizations. This
 construction allows us to separate logic to classes.
 ------------------------------------------------------------------------------------------------------------------------
-**FACADE**.
+**Facade**.
 
 Implementations: interface/interface.py
 
@@ -118,6 +118,7 @@ It has just a few methods which hide a complex structure relations of different 
 
 ------------------------------------------------------------------------------------------------------------------------
 **Behavioral Patterns**
+
 ------------------------------------------------------------------------------------------------------------------------
 **REFUSE CoR**.
 
@@ -130,14 +131,14 @@ Hereby, by including them in the chain we increase program cohesion, which is ba
 Moreover, if we want to build CoR in this situation, we always need to track if window falls out of the chain and
 replace one if it is. Considering that there's a load of disappearing objects, it becomes a tough task.
 ------------------------------------------------------------------------------------------------------------------------
-**COMMAND**.
+**Command**.
 
 Implementations: interface/button.py
     
 This one uses to store actions (functions) in buttons. Some actions need args and can't be called immediately.
 Buttons remember what actions they should react (handle_*_click) and takes the appropriate args of the context.
 ------------------------------------------------------------------------------------------------------------------------
-**STATE**.
+**State**.
 
 Implementations: interface/window.py
 
@@ -145,14 +146,8 @@ Window can have a few states: `hidden` (don't show on screen; don't react any cl
 borders; ready to react a click and turn to active state) and `active` (draws with borders; if clicked turn to
 passive state). It's comfortable to create class for every state and delegate any work connected with state to it.
 ------------------------------------------------------------------------------------------------------------------------
-**REFUSE OBSERVER**.
+**REFUSE Observer**.
 
 This pattern already exists in pygame as a `kill` command. When we kill object, all the groups it's consist in
 remove the object.
-------------------------------------------------------------------------------------------------------------------------
-**VISITOR**.
-See COMPOSITE.
-------------------------------------------------------------------------------------------------------------------------
-**ITERATOR**.
-See COMPOSITE.
 ------------------------------------------------------------------------------------------------------------------------
