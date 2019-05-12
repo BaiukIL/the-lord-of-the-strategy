@@ -1,9 +1,9 @@
 import pygame
 import exceptions
 from interface import message
-from configs import interface_config
+import configs
 from interface import window
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import *
 
 
@@ -12,7 +12,7 @@ class Button(window.Window, ABC):
     Represents commands which selected object has."""
 
     def __init__(self, image: pygame.Surface, action: Callable, text: Text, interface):
-        window.Window.__init__(self, interface_config.COMMAND_SIZE, image)
+        window.Window.__init__(self, configs.COMMAND_SIZE, image)
         self._action = action
         self.activated = False
         self._hint_message = text

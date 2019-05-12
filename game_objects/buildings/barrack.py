@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 import exceptions
 from images import image as img
 from typing import *
+import time
 
 
 class Barrack(base_building.Building, ABC):
@@ -13,7 +14,7 @@ class Barrack(base_building.Building, ABC):
     def create_builder(self):
         size = 90, 90
         rect = self._get_unit_rect(size)
-        self._assert_creation_is_available(rect)
+        self._assert_creation_place_is_free(rect)
         unit = self._create_builder(size=size)
         self._action_after_unit_creation(unit, rect)
         return unit
@@ -21,7 +22,7 @@ class Barrack(base_building.Building, ABC):
     def create_scout(self):
         size = 90, 90
         rect = self._get_unit_rect(size)
-        self._assert_creation_is_available(rect)
+        self._assert_creation_place_is_free(rect)
         unit = self._create_scout(size=size)
         self._action_after_unit_creation(unit, rect)
         return unit
@@ -29,7 +30,7 @@ class Barrack(base_building.Building, ABC):
     def create_warrior(self):
         size = 90, 90
         rect = self._get_unit_rect(size)
-        self._assert_creation_is_available(rect)
+        self._assert_creation_place_is_free(rect)
         unit = self._create_warrior(size=size)
         self._action_after_unit_creation(unit, rect)
         return unit
@@ -52,11 +53,18 @@ class Barrack(base_building.Building, ABC):
         rect.top = self.rect.bottom + 20
         return rect
 
-    def _assert_creation_is_available(self, rect: pygame.Rect):
+    def _assert_delay_is_over(self, delay: int, last_call_time: int):
+        difference = time.time() - last_call_time
+        if difference < delay:
+            raise exceptions.CreationTimeError(
+                "Can't create unit - not enough time's passed since previous call.\nTime remained: {}".format(
+                    difference))
+
+    def _assert_creation_place_is_free(self, rect: pygame.Rect):
         sprite = pygame.sprite.Sprite()
         sprite.rect = rect
         if pygame.sprite.spritecollideany(sprite, self._all_objects):
-            raise exceptions.CreationError("Can't create unit - place is occupied")
+            raise exceptions.CreationPlaceError("Can't create unit - place is occupied")
 
     def _action_after_unit_creation(self, unit: unit_mod.Unit, rect: pygame.Rect):
         self.empire.army.recruit_unit(unit=unit)

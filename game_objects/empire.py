@@ -1,6 +1,6 @@
 import pygame
 from game_objects import army, city
-from configs import game_config
+import configs
 from images import image as img
 from typing import *
 
@@ -13,6 +13,7 @@ class Empire:
         self.name = name
         self.resources = 50
         self.army = army.Army(empire=self)
+        self.objects = pygame.sprite.Group()
         self.cities = pygame.sprite.Group()
         self.icon = img.get_image(self).EMPIRE_ICON
 
@@ -31,7 +32,7 @@ class Empire:
                                   name=name,
                                   cost=cost,
                                   image=img.get_image(self).CITY,
-                                  size=game_config.CITY_SIZE,
+                                  size=(200, 200),
                                   health=20))
 
     def get_city(self, name: str) -> city.City:

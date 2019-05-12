@@ -1,4 +1,5 @@
 import pygame
+import time
 from game_objects import base_object
 from abc import ABC
 from typing import *
@@ -7,8 +8,8 @@ from typing import *
 class Unit(base_object.GameObject, ABC):
     def __init__(self, empire, health: int, speed: int, cost: int, size: Tuple[int, int], image: pygame.Surface):
         base_object.GameObject.__init__(self, empire=empire, health=health, cost=cost, size=size, image=image)
-        self.speed_val = speed
-        self.vector = pygame.Vector2()
+        self.max_speed = speed
+        self.speed = pygame.Vector2()
         self.cur_real_pos = list(self.rect.center)
         self.destination = self.rect.center
 
@@ -16,26 +17,40 @@ class Unit(base_object.GameObject, ABC):
         self.destination = self.rect.center
         self.cur_real_pos = list(self.rect.center)
 
-    def set_move_to(self, mouse_pos: Tuple[int, int]):
-        self.destination = mouse_pos
+    def set_move_to(self, dest: Tuple[int, int]):
+        self.destination = dest
         self.cur_real_pos = list(self.rect.center)
-        self.vector = pygame.Vector2(mouse_pos) - pygame.Vector2(self.rect.center)
-        if self.vector.length() > 0:
-            self.vector.scale_to_length(self.speed_val)
+        self.speed = pygame.Vector2(dest) - pygame.Vector2(self.rect.center)
+        if self.speed.length() > 0:
+            self.speed.scale_to_length(self.max_speed)
 
     def move(self):
-        if not (abs(self.rect.center[0] - self.destination[0]) < 5 and
-                abs(self.rect.center[1] - self.destination[1] < 5)):
-            self.cur_real_pos[0] += self.vector.x
-            self.cur_real_pos[1] += self.vector.y
-            self.rect.center = self.cur_real_pos
-            collision_occurred = False
-            for sprite in pygame.sprite.spritecollide(self, self._all_objects, False):
-                if sprite != self:
-                    self._fix_collision()
-                    collision_occurred = True
-            if collision_occurred:
-                self.set_move_to(self.rect.center)
+        previous_pos = self.cur_real_pos.copy()
+        if abs(self.rect.centerx - self.destination[0]) >= self.max_speed or abs(
+                self.rect.centery - self.destination[1]) >= self.max_speed:
+            self.cur_real_pos[0] += self.speed.x
+            self.rect.centerx = self.cur_real_pos[0]
+            intersected = pygame.sprite.spritecollide(self, self._all_objects, False)
+            intersected.remove(self)
+            for obj in intersected:
+                if self.speed.x < 0:
+                    self.rect.left = obj.rect.right
+                else:
+                    self.rect.right = obj.rect.left
+                self.cur_real_pos[0] = self.rect.centerx
+
+            self.cur_real_pos[1] += self.speed.y
+            self.rect.centery = self.cur_real_pos[1]
+            intersected = pygame.sprite.spritecollide(self, self._all_objects, False)
+            intersected.remove(self)
+            for obj in intersected:
+                if self.speed.y < 0:
+                    self.rect.top = obj.rect.bottom
+                else:
+                    self.rect.bottom = obj.rect.top
+                self.cur_real_pos[1] = self.rect.centery
+        if self.cur_real_pos == previous_pos:
+            self.stop_move()
 
     def stop_move(self):
         self.set_move_to(self.rect.center)
@@ -48,17 +63,13 @@ class Unit(base_object.GameObject, ABC):
         result += "Race: {}\n".format(self.empire.race)
         result += "Empire: {}\n".format(self.empire.name)
         result += "Health: {}\n".format(self.health)
-        result += "Speed: {}\n".format(self.speed_val)
+        result += "Speed: {}\n".format(self.max_speed)
         return result
 
     def update(self, *args):
-        if self.vector.length() != 0:
+        self.set_move_to(self.destination)
+        if self.speed.length() != 0:
             self.move()
-
-    def _fix_collision(self):
-        self.cur_real_pos[0] -= self.vector.x
-        self.cur_real_pos[1] -= self.vector.y
-        self.rect.center = self.cur_real_pos
 
 
 class Warrior(Unit):
@@ -69,6 +80,7 @@ class Warrior(Unit):
         self.damage = damage
         self.attack_target = pygame.sprite.GroupSingle()
         self.attack_delay = 3  # in seconds
+        self._last_attack_call_time = time.time()
         self.fight_distance = 150
 
     def attack(self, obj: base_object.GameObject):
@@ -95,14 +107,17 @@ class Warrior(Unit):
         result += "Race: {}\n".format(self.empire.race)
         result += "Empire: {}\n".format(self.empire.name)
         result += "Health: {}\n".format(self.health)
-        result += "Speed: {}\n".format(self.speed_val)
+        result += "Speed: {}\n".format(self.max_speed)
         result += "Damage: {}\n".format(self.damage)
         return result
 
     def update(self, *args):
+        self.set_move_to(self.destination)
         for target in self.attack_target:
-            self.attack(target)
-        if self.vector.length() != 0:
+            if time.time() - self._last_attack_call_time > self.attack_delay:
+                self.attack(target)
+                self._last_attack_call_time = time.time()
+        if self.speed.length() != 0:
             self.move()
 
 

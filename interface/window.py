@@ -1,5 +1,5 @@
 import pygame
-from configs import interface_config
+import configs
 import templates
 from abc import ABC
 from typing import *
@@ -70,8 +70,8 @@ class Window(pygame.sprite.Sprite, templates.Handler):
     # If False, borders will never appear
     _never_bordered = False
 
-    _borders_size = interface_config.BORDERS_SIZE
-    _borders_color = interface_config.BORDERS_COLOR
+    _borders_size = configs.BORDERS_SIZE
+    _borders_color = configs.BORDERS_COLOR
 
     def __init__(self, size: Tuple[int, int], image: pygame.Surface = None):
         pygame.sprite.Sprite.__init__(self)

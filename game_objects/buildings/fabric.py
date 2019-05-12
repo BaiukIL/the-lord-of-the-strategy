@@ -47,6 +47,7 @@ class ElvesFabric(Fabric):
     def build_mine(self, size: Tuple[int, int]) -> mine.Mine:
         return mine.Mine(health=5,
                          cost=10,
+                         reload=10,
                          empire=self.empire,
                          image=img.get_image(self.empire).MINE,
                          size=size)
@@ -70,6 +71,7 @@ class OrcsFabric(Fabric):
     def build_mine(self, size: Tuple[int, int]) -> mine.Mine:
         return mine.Mine(health=5,
                          cost=10,
+                         reload=10,
                          empire=self.empire,
                          image=img.get_image(self.empire).MINE,
                          size=size)
@@ -93,6 +95,7 @@ class DwarfsFabric(Fabric):
     def build_mine(self, size: Tuple[int, int]) -> mine.Mine:
         return mine.Mine(health=8,
                          cost=10,
+                         reload=10,
                          empire=self.empire,
                          image=img.get_image(self.empire).MINE,
                          size=size)

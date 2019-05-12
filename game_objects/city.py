@@ -26,7 +26,7 @@ class City(base_object.GameObject):
     def build_barrack(self, mouse_pos: Tuple[int, int]):
         size = 170, 170
         rect = self._get_building_rect(size, mouse_pos)
-        self._assert_creation_place_is_available(rect)
+        self._assert_creation_place_is_free(rect)
         building = self._fabric.build_barrack(size)
         self._action_after_building_creation(building, rect)
         return building
@@ -34,15 +34,15 @@ class City(base_object.GameObject):
     def build_mine(self, mouse_pos: Tuple[int, int]):
         size = 150, 150
         rect = self._get_building_rect(size, mouse_pos)
-        self._assert_creation_place_is_available(rect)
+        self._assert_creation_place_is_free(rect)
         building = self._fabric.build_mine(size)
         self._action_after_building_creation(building, rect)
         return building
 
     def build_wall(self, mouse_pos: Tuple[int, int]):
-        size = 25, 100
+        size = 50, 200
         rect = self._get_building_rect(size, mouse_pos)
-        self._assert_creation_place_is_available(rect)
+        self._assert_creation_place_is_free(rect)
         building = self._fabric.build_wall(size)
         self._action_after_building_creation(building, rect)
         return building
@@ -52,11 +52,11 @@ class City(base_object.GameObject):
         rect.center = mouse_pos
         return rect
 
-    def _assert_creation_place_is_available(self, rect: pygame.Rect):
+    def _assert_creation_place_is_free(self, rect: pygame.Rect):
         sprite = pygame.sprite.Sprite()
         sprite.rect = rect
         if pygame.sprite.spritecollideany(sprite, self._all_objects):
-            raise exceptions.CreationError("Can't create building here - place is occupied")
+            raise exceptions.CreationPlaceError("Can't create building here - place is occupied")
 
     def _action_after_building_creation(self, building, rect: pygame.Rect):
         self.buildings.add(building)

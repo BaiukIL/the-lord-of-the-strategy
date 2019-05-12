@@ -18,9 +18,10 @@ class GameObject(window.Window, ABC):
         if empire.resources - cost >= 0:
             empire.resources -= cost
         else:
-            raise exceptions.CreationError("Can't create object - lack of resources")
+            raise exceptions.CreationResourcesLimitError("Can't create object - lack of resources")
         window.Window.__init__(self, size=size, image=image)
         game.Game().objects.add(self)
+        self.empire.objects.add(self)
         self._all_objects = game.Game().objects
         self._interface = Interface()
         self.icon_image = image
@@ -34,6 +35,7 @@ class GameObject(window.Window, ABC):
     def decrease_health(self, value: int):
         if value >= 0:
             self.health -= value
+            self._image.fill()
         else:
             raise GameObjectError("Can't decrease negative health: {}. Use increase_health for this".format(value))
         if self.health <= 0:

@@ -1,7 +1,7 @@
 import pygame
 from interface import window, button
 import map
-from configs import interface_config
+import configs
 import templates
 from typing import *
 
@@ -15,17 +15,17 @@ class Camera(pygame.Rect):
     """It is a frame within which player can see game changes"""
 
     def __init__(self):
-        super().__init__(interface_config.CAMERA_START_POS, interface_config.SCR_SIZE)
-        self._speed = interface_config.CAMERA_SPEED
+        super().__init__(configs.CAMERA_START_POS, configs.SCR_SIZE)
+        self._speed = configs.CAMERA_SPEED
 
     def move_view(self, key, mouse_pos: Tuple[int, int]):
         if key[pygame.K_w] or mouse_pos[1] == 0:
             self.y -= self._speed
-        if key[pygame.K_s] or mouse_pos[1] == interface_config.SCR_HEIGHT - 1:
+        if key[pygame.K_s] or mouse_pos[1] == configs.SCR_HEIGHT - 1:
             self.y += self._speed
         if key[pygame.K_a] or mouse_pos[0] == 0:
             self.x -= self._speed
-        if key[pygame.K_d] or mouse_pos[0] == interface_config.SCR_WIDTH - 1:
+        if key[pygame.K_d] or mouse_pos[0] == configs.SCR_WIDTH - 1:
             self.x += self._speed
         self._fix_collision_with_map()
 
@@ -46,8 +46,8 @@ class Selected(window.Window):
     and responsible for showing selected object info."""
 
     def __init__(self):
-        window.Window.__init__(self, interface_config.SELECTED_SIZE)
-        self.rect.bottomleft = (0, interface_config.SCR_HEIGHT)
+        window.Window.__init__(self, configs.SELECTED_SIZE)
+        self.rect.bottomleft = (0, configs.SCR_HEIGHT)
         self.set_default_alpha(170)
         self.set_never_bordered()
         self.hide()
@@ -79,7 +79,7 @@ class Selected(window.Window):
         # interface_config.BORDERS_SIZE is indent from left side of selected screen
         line_pos = [0, 0]
         for line in text.split('\n'):
-            self._image.blit(font.render(line, True, interface_config.SELECTED_TEXT_COLOR), line_pos)
+            self._image.blit(font.render(line, True, configs.SELECTED_TEXT_COLOR), line_pos)
             line_pos[1] += indent
 
 
@@ -90,15 +90,15 @@ class Minimap(window.Window):
     _frame: pygame.Rect
 
     def __init__(self):
-        window.Window.__init__(self, interface_config.MINIMAP_SIZE, image=map.Map().image)
-        self.rect.bottomright = interface_config.SCR_SIZE
+        window.Window.__init__(self, configs.MINIMAP_SIZE, image=map.Map().image)
+        self.rect.bottomright = configs.SCR_SIZE
         self.set_constant_bordered()
         self.set_default_alpha(170)
 
         self._frame = pygame.Rect(
             self.rect.topleft, (
-                int(self.rect.width * interface_config.SCR_WIDTH / map.Map().rect.width),
-                int(self.rect.height * interface_config.SCR_HEIGHT / map.Map().rect.height)))
+                int(self.rect.width * configs.SCR_WIDTH / map.Map().rect.width),
+                int(self.rect.height * configs.SCR_HEIGHT / map.Map().rect.height)))
 
     def move_frame(self, pos: tuple):
         self._frame.x = int(pos[0] * self.rect.width / map.Map().rect.width)
@@ -118,8 +118,8 @@ class EmpireInfo:
         self.resources = window.Window((220, 50))
         self.resources.set_default_alpha(170)
         if enemy:
-            self.empire_icon.rect.topright = interface_config.SCR_WIDTH, 0
-            self.resources.rect.topright = interface_config.SCR_WIDTH, 120
+            self.empire_icon.rect.topright = configs.SCR_WIDTH, 0
+            self.resources.rect.topright = configs.SCR_WIDTH, 120
         else:
             self.empire_icon.rect.topleft = 0, 0
             self.resources.rect.topleft = 0, 120
@@ -228,23 +228,23 @@ class Interface(templates.Handler, metaclass=templates.Singleton):
         self.enemy_empire_info.draw(screen)
 
     def _place_commands(self, obj):
-        pos = [self.selected.rect.right + interface_config.SELECTED_TO_COMMAND_INDENT,
-               interface_config.SCR_HEIGHT - interface_config.COMMAND_HEIGHT - 10]
+        pos = [self.selected.rect.right + configs.SELECTED_TO_COMMAND_INDENT,
+               configs.SCR_HEIGHT - configs.COMMAND_HEIGHT - 10]
 
         for command in obj.mouse_interaction_commands:
             command_window = button.MouseInteractionButton(*command, interface=self)
             command_window.rect.topleft = pos
             self.commands.add(command_window)
-            pos[0] += interface_config.COMMANDS_INDENT
+            pos[0] += configs.COMMANDS_INDENT
 
         for command in obj.no_interaction_commands:
             command_window = button.NoInteractionButton(*command, interface=self)
             command_window.rect.topleft = pos
             self.commands.add(command_window)
-            pos[0] += interface_config.COMMANDS_INDENT
+            pos[0] += configs.COMMANDS_INDENT
 
         for command in obj.object_interaction_commands:
             command_window = button.ObjectInteractionButton(*command, interface=self)
             command_window.rect.topleft = pos
             self.commands.add(command_window)
-            pos[0] += interface_config.COMMANDS_INDENT
+            pos[0] += configs.COMMANDS_INDENT

@@ -2,9 +2,9 @@ import os
 import sys
 import pygame
 from game import Game
-from player import Player, AI
+from AI import AI
 from interface.interface import Interface, get_global_mouse_pos
-from configs import interface_config
+import configs
 from game_objects import empire, races
 from images import image as img
 import map
@@ -41,7 +41,6 @@ def finish_game(win: bool):
 
 def play_game():
     my_empire = empire.Empire(races.ORCS, name='MyEmpire')
-    Player(my_empire)
     enemy_empire = empire.Empire(races.DWARFS, name='Erewen')
     AI(enemy_empire)
     Interface(my_empire, enemy_empire)
@@ -85,6 +84,8 @@ def play_game():
             if not handled:
                 Interface().handle_empty_click(mouse_pos)
 
+        AI().play_step()
+
         # If any of empires is out of cities, finish the game
         if not my_empire.alive() or not enemy_empire.alive():
             finish_game(win=my_empire.alive())
@@ -100,13 +101,13 @@ def play_game():
         # show screen
         pygame.display.flip()
         # cap the framerate
-        clock.tick(60)
+        clock.tick(50)
 
 
 if __name__ == '__main__':
     pygame.init()
 
-    screen = pygame.display.set_mode(interface_config.SCR_SIZE)
+    screen = pygame.display.set_mode(configs.SCR_SIZE)
     pygame.display.set_caption("the Lord of the Strategy")
     icon_surf = img.get_image().ICON
     pygame.display.set_icon(icon_surf)
