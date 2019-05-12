@@ -29,9 +29,13 @@ class Unit(base_object.GameObject, ABC):
             self.cur_real_pos[0] += self.vector.x
             self.cur_real_pos[1] += self.vector.y
             self.rect.center = self.cur_real_pos
+            collision_occurred = False
             for sprite in pygame.sprite.spritecollide(self, self._all_objects, False):
                 if sprite != self:
                     self._fix_collision()
+                    collision_occurred = True
+            if collision_occurred:
+                self.set_move_to(self.rect.center)
 
     def stop_move(self):
         self.set_move_to(self.rect.center)
@@ -48,8 +52,8 @@ class Unit(base_object.GameObject, ABC):
         return result
 
     def update(self, *args):
-        """Sprite build-in empty method"""
-        self.move()
+        if self.vector.length() != 0:
+            self.move()
 
     def _fix_collision(self):
         self.cur_real_pos[0] -= self.vector.x
@@ -98,7 +102,8 @@ class Warrior(Unit):
     def update(self, *args):
         for target in self.attack_target:
             self.attack(target)
-        self.move()
+        if self.vector.length() != 0:
+            self.move()
 
 
 class ElfWarrior(Warrior):

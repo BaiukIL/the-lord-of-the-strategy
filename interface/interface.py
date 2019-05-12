@@ -1,5 +1,5 @@
 import pygame
-from interface import window
+from interface import window, button
 import map
 from configs import interface_config
 import templates
@@ -59,16 +59,20 @@ class Selected(window.Window):
     def select_object(self, obj):
         self.clear()
         self.active()
-        self._place_image(obj._image)
-        self._place_text(obj.info())
+        self._place_object_image(obj._image)
+        self._place_object_text(obj.info())
+        self._show_empire_info(obj.empire)
 
-    def _place_image(self, image: pygame.Surface):
+    def _show_empire_info(self, empire):
+        pass
+
+    def _place_object_image(self, image: pygame.Surface):
         selected_img_side_size = min(self.rect.width // 2, self.rect.height // 2)
         self._image.blit(pygame.transform.scale(image, (selected_img_side_size,
                                                         selected_img_side_size)),
                          (self.rect.width // 2, self.rect.height // 2))
 
-    def _place_text(self, text: Text):
+    def _place_object_text(self, text: Text):
         font = pygame.font.SysFont(name='Ani', size=20)
         # vertical indent between lines
         indent = 25
@@ -106,68 +110,43 @@ class Minimap(window.Window):
         pygame.draw.rect(self._image, self._borders_color, self._frame, 1)
 
 
-class Command(window.Window):
-    """A window which is located in the middle bottom of the screen.
-    Represents commands which selected object has."""
+class EmpireInfo:
+    def __init__(self, empire, enemy: bool):
+        self.empire = empire
+        self.empire_icon = window.Window(size=(100, 100), image=empire.icon)
+        self.empire_icon.set_default_alpha(170)
+        self.resources = window.Window((220, 50))
+        self.resources.set_default_alpha(170)
+        if enemy:
+            self.empire_icon.rect.topright = interface_config.SCR_WIDTH, 0
+            self.resources.rect.topright = interface_config.SCR_WIDTH, 120
+        else:
+            self.empire_icon.rect.topleft = 0, 0
+            self.resources.rect.topleft = 0, 120
 
-    _action: Callable
-    activated: bool = False
+    def update(self):
+        font = pygame.font.SysFont(name='Ani', size=30)
+        self.resources.clear()
+        self.resources._image.blit(
+            font.render('Resources: {}'.format(self.empire.resources), True, pygame.Color('black')), (0, 0))
 
-    def __init__(self, image: pygame.Surface, action: Callable, message: Text):
-        window.Window.__init__(self, interface_config.COMMAND_SIZE, image)
-        self._action = action
-        self._hint_message = message
-
-    def active(self):
-        self.change_state(window.ActiveWindowState(self))
-        self.activated = True
-
-    def passive(self):
-        self.change_state(window.PassiveWindowState(self))
-        self.activated = False
-
-    def click_action(self):
-        Interface().change_selected_command(self)
-
-    def return_click_action(self):
-        Interface().change_selected_command(None)
-
-    def handle_empty_click(self, mouse_pos: Tuple[int, int]):
-        pass
-
-    def handle_object_click(self, obj):
-        pass
-
-    def execute(self, *args):
-        self._action(*args)
-        self.passive()
-
-
-class NoInteractionCommand(Command):
-    def click_action(self):
-        Interface().change_selected_command(self)
-        self.execute()
-
-
-class MouseInteractionCommand(Command):
-    def handle_empty_click(self, mouse_pos: Tuple[int, int]):
-        self.execute(mouse_pos)
-
-
-class ObjectInteractionCommand(Command):
-    def handle_object_click(self, obj):
-        self.execute(obj)
+    def draw(self, screen: pygame.Surface):
+        screen.blit(self.empire_icon._image, self.empire_icon.rect)
+        screen.blit(self.resources._image, self.resources.rect)
 
 
 class Interface(templates.Handler, metaclass=templates.Singleton):
     """Interface is a mediator which coordinates interface windows work."""
 
-    def __init__(self, player):
-        self.player = player
+    def __init__(self, player_empire, enemy_empire):
+        self.player_empire = player_empire
         self.camera = Camera()
         self.selected = Selected()
         self.minimap = Minimap()
         self.commands = pygame.sprite.Group()
+        self.messages = pygame.sprite.Group()
+        self.player_empire_info = EmpireInfo(player_empire, enemy=False)
+        self.enemy_empire_info = EmpireInfo(enemy_empire, enemy=True)
         # The most recent chosen (selected) game object
         # and command respectively
         self.buffer = pygame.sprite.GroupSingle()
@@ -186,7 +165,7 @@ class Interface(templates.Handler, metaclass=templates.Singleton):
         if obj is not None:
             self.buffer.add(obj)
 
-    def change_selected_command(self, command: 'Command' or None):
+    def change_selected_command(self, command: button.Button or None):
         for com in self.command:
             com.passive()
         self.command.empty()
@@ -229,7 +208,7 @@ class Interface(templates.Handler, metaclass=templates.Singleton):
         self.commands.empty()
         # if given object belongs to player's empire,
         # let work with it. Otherwise do not show commands
-        if obj.empire is self.player.empire:
+        if obj.empire is self.player_empire:
             self._place_commands(obj)
 
     def draw_interface(self, screen: pygame.Surface):
@@ -240,26 +219,32 @@ class Interface(templates.Handler, metaclass=templates.Singleton):
         screen.blit(self.selected.image, self.selected.rect)
         self.minimap.update()
         screen.blit(self.minimap.image, self.minimap.rect)
+        self.messages.update()
+        self.messages.draw(screen)
         self.commands.draw(screen)
+        self.player_empire_info.update()
+        self.player_empire_info.draw(screen)
+        self.enemy_empire_info.update()
+        self.enemy_empire_info.draw(screen)
 
     def _place_commands(self, obj):
         pos = [self.selected.rect.right + interface_config.SELECTED_TO_COMMAND_INDENT,
                interface_config.SCR_HEIGHT - interface_config.COMMAND_HEIGHT - 10]
 
         for command in obj.mouse_interaction_commands:
-            command_window = MouseInteractionCommand(*command)
+            command_window = button.MouseInteractionButton(*command, interface=self)
             command_window.rect.topleft = pos
             self.commands.add(command_window)
             pos[0] += interface_config.COMMANDS_INDENT
 
         for command in obj.no_interaction_commands:
-            command_window = NoInteractionCommand(*command)
+            command_window = button.NoInteractionButton(*command, interface=self)
             command_window.rect.topleft = pos
             self.commands.add(command_window)
             pos[0] += interface_config.COMMANDS_INDENT
 
         for command in obj.object_interaction_commands:
-            command_window = ObjectInteractionCommand(*command)
+            command_window = button.ObjectInteractionButton(*command, interface=self)
             command_window.rect.topleft = pos
             self.commands.add(command_window)
             pos[0] += interface_config.COMMANDS_INDENT

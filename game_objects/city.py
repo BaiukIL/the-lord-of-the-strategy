@@ -1,8 +1,8 @@
 import pygame
+import exceptions
 from game_objects import base_object
 from game_objects.buildings import fabric
 from images import image as img
-from configs import game_config
 from typing import *
 
 
@@ -11,37 +11,56 @@ class CityError(Exception):
 
 
 class City(base_object.GameObject):
-
-    def __init__(self, name: str, empire):
+    def __init__(self, name: str, health: int, cost: int, image: pygame.Surface, size: Tuple[int, int], empire):
         base_object.GameObject.__init__(self,
                                         empire=empire,
-                                        health=20,
-                                        cost=100,
-                                        image=img.get_image(empire).CITY,
-                                        size=game_config.CITY_SIZE)
+                                        health=health,
+                                        cost=cost,
+                                        image=image,
+                                        size=size)
         self.name = name
-        self._buildings = pygame.sprite.Group()
-        self.empire._cities.add(self)
+        self.buildings = pygame.sprite.Group()
+        self.empire.cities.add(self)
         self._fabric = fabric.Manufacture().create_fabric(self.empire)
 
     def build_barrack(self, mouse_pos: Tuple[int, int]):
-        building = self._fabric.build_barrack()
-        self._action_after_building_creation(building, mouse_pos)
+        size = 170, 170
+        rect = self._get_building_rect(size, mouse_pos)
+        self._assert_creation_place_is_available(rect)
+        building = self._fabric.build_barrack(size)
+        self._action_after_building_creation(building, rect)
         return building
 
     def build_mine(self, mouse_pos: Tuple[int, int]):
-        building = self._fabric.build_mine()
-        self._action_after_building_creation(building, mouse_pos)
+        size = 150, 150
+        rect = self._get_building_rect(size, mouse_pos)
+        self._assert_creation_place_is_available(rect)
+        building = self._fabric.build_mine(size)
+        self._action_after_building_creation(building, rect)
         return building
 
     def build_wall(self, mouse_pos: Tuple[int, int]):
-        building = self._fabric.build_wall()
-        self._action_after_building_creation(building, mouse_pos)
+        size = 25, 100
+        rect = self._get_building_rect(size, mouse_pos)
+        self._assert_creation_place_is_available(rect)
+        building = self._fabric.build_wall(size)
+        self._action_after_building_creation(building, rect)
         return building
 
-    def _action_after_building_creation(self, building, mouse_pos: Tuple[int, int]):
-        self._buildings.add(building)
-        building.rect.center = mouse_pos
+    def _get_building_rect(self, size: Tuple[int, int], mouse_pos: Tuple[int, int]) -> pygame.Rect:
+        rect = pygame.Rect(mouse_pos, size)
+        rect.center = mouse_pos
+        return rect
+
+    def _assert_creation_place_is_available(self, rect: pygame.Rect):
+        sprite = pygame.sprite.Sprite()
+        sprite.rect = rect
+        if pygame.sprite.spritecollideany(sprite, self._all_objects):
+            raise exceptions.CreationError("Can't create building here - place is occupied")
+
+    def _action_after_building_creation(self, building, rect: pygame.Rect):
+        self.buildings.add(building)
+        building.rect = rect
 
     def info(self) -> Text:
         result = str()

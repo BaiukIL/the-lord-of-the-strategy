@@ -1,0 +1,5 @@
+
+
+class CreationError(Exception):
+    pass
+

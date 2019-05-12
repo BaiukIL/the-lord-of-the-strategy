@@ -20,7 +20,7 @@ def finish_game(win: bool):
         final_message = 'You win!'
     else:
         pygame.draw.rect(screen, pygame.Color('red'), screen.get_rect())
-        final_message = 'You lose...'
+        final_message = 'You lost...'
     font = pygame.font.SysFont(name='Ani', size=100)
     screen.blit(font.render(final_message, True, pygame.Color('black')),
                 (screen.get_width() // 3 + 80, screen.get_height() // 5))
@@ -40,12 +40,11 @@ def finish_game(win: bool):
 
 
 def play_game():
-
     my_empire = empire.Empire(races.ORCS, name='MyEmpire')
     Player(my_empire)
     enemy_empire = empire.Empire(races.DWARFS, name='Erewen')
     AI(enemy_empire)
-    Interface(Player())
+    Interface(my_empire, enemy_empire)
 
     my_empire.set_city("Nevborn")
     my_city = my_empire.get_city("Nevborn")

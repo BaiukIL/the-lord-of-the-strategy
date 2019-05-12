@@ -1,5 +1,6 @@
 import pygame
 import game
+import exceptions
 from interface.interface import Interface
 from abc import ABC
 from interface import window
@@ -14,6 +15,10 @@ class GameObject(window.Window, ABC):
         self.empire = empire
         self.health = health
         self.cost = cost
+        if empire.resources - cost >= 0:
+            empire.resources -= cost
+        else:
+            raise exceptions.CreationError("Can't create object - lack of resources")
         window.Window.__init__(self, size=size, image=image)
         game.Game().objects.add(self)
         self._all_objects = game.Game().objects
@@ -32,7 +37,7 @@ class GameObject(window.Window, ABC):
         else:
             raise GameObjectError("Can't decrease negative health: {}. Use increase_health for this".format(value))
         if self.health <= 0:
-            self.destroy()
+            self.die()
 
     def info(self) -> Text:
         result = str()
@@ -45,6 +50,13 @@ class GameObject(window.Window, ABC):
         pass
 
     def destroy(self):
+        """Player can ruin this object using this method
+        and get half of its cost back"""
+        self._interface.hide_all()
+        self.empire.resources += self.cost // 2
+        self.kill()
+
+    def die(self):
         """This method is called when object is out of health"""
         self._interface.hide_all()
         self.kill()
@@ -81,6 +93,10 @@ class GameObject(window.Window, ABC):
     @property
     def object_interaction_commands(self) -> List[Tuple[pygame.Surface, Callable, Text]]:
         return []
+
+    def update(self, *args):
+        """There might be animation update (i.e. effect of object moving)"""
+        pass
 
 
 class GameObjectError(Exception):
