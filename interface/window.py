@@ -1,4 +1,5 @@
 import pygame
+import time
 import configs
 import templates
 from abc import ABC
@@ -23,7 +24,7 @@ class WindowState(ABC):
 class HiddenWindowState(WindowState):
     def __init__(self, window: 'Window'):
         super().__init__(window)
-        self._window._image.set_alpha(0)
+        self._window.real_image.set_alpha(0)
 
     def can_handle(self, mouse_pos: Tuple[int, int]) -> bool:
         return False
@@ -32,7 +33,7 @@ class HiddenWindowState(WindowState):
 class PassiveWindowState(WindowState):
     def __init__(self, window: 'Window'):
         super().__init__(window)
-        self._window._image.set_alpha(self._window._default_alpha)
+        self._window.real_image.set_alpha(self._window._default_alpha)
         self._window.remove_borders()
 
     def handle(self, mouse_pos: Tuple[int, int]):
@@ -43,7 +44,7 @@ class PassiveWindowState(WindowState):
 class ActiveWindowState(WindowState):
     def __init__(self, window: 'Window'):
         super().__init__(window)
-        self._window._image.set_alpha(self._window._default_alpha)
+        self._window.real_image.set_alpha(self._window._default_alpha)
         self._window.add_borders()
 
     def handle(self, mouse_pos: Tuple[int, int]):
@@ -76,15 +77,18 @@ class Window(pygame.sprite.Sprite, templates.Handler):
     def __init__(self, size: Tuple[int, int], image: pygame.Surface = None):
         pygame.sprite.Sprite.__init__(self)
         if image is not None:
-            self._image = pygame.transform.scale(image, size)
+            self.real_image = pygame.transform.scale(image, size)
         else:
-            self._image = pygame.Surface(size, pygame.SRCALPHA)
-        self.rect = self._image.get_rect()
+            self.real_image = pygame.Surface(size, pygame.SRCALPHA)
+        self.rect = self.real_image.get_rect()
+        self._draw_image = self.real_image
         self.passive()
+        self._tmp_delay = 0
+        self._last_tmp_time = 0
 
     def set_default_alpha(self, alpha: int):
         self._default_alpha = alpha
-        self._image.set_alpha(alpha)
+        self.real_image.set_alpha(alpha)
 
     def set_constant_bordered(self):
         if self._constant_bordered:
@@ -98,19 +102,24 @@ class Window(pygame.sprite.Sprite, templates.Handler):
         self._never_bordered = True
         self.remove_borders()
 
+    def set_temporary_image(self, image: pygame.Surface, delay: float):
+        self._draw_image = image
+        self._tmp_delay = delay
+        self._last_tmp_time = time.time()
+
     @property
     def image(self):
         """Used by Groups"""
         if self._bordered:
             image = pygame.Surface(self.rect.size, pygame.SRCALPHA)
-            image.set_alpha(self._image.get_alpha())
-            compressed_image = pygame.transform.scale(self._image, (self.rect.width - self._borders_size,
-                                                                    self.rect.height - self._borders_size))
+            image.set_alpha(self._draw_image.get_alpha())
+            compressed_draw_image = pygame.transform.scale(self._draw_image, (self.rect.width - self._borders_size,
+                                                                              self.rect.height - self._borders_size))
             pygame.draw.rect(image, self._borders_color, [0, 0, self.rect.width, self.rect.height], self._borders_size)
             # // 2 because borders_size = left_border + right_border
-            image.blit(compressed_image, (self._borders_size // 2, self._borders_size // 2))
+            image.blit(compressed_draw_image, (self._borders_size // 2, self._borders_size // 2))
         else:
-            image = self._image
+            image = self._draw_image
         return image
 
     def change_state(self, state: WindowState):
@@ -126,7 +135,7 @@ class Window(pygame.sprite.Sprite, templates.Handler):
         self.change_state(ActiveWindowState(self))
 
     def clear(self):
-        self._image.fill((0, 0, 0, 0))
+        self.real_image.fill((0, 0, 0, 0))
 
     def add_borders(self):
         if not self._never_bordered:
@@ -151,6 +160,16 @@ class Window(pygame.sprite.Sprite, templates.Handler):
         """Empty method which can be overridden.
         It's called when window is clicked in active state"""
         pass
+
+    def action_while_update(self):
+        """Empty method"""
+        pass
+
+    def update(self, *args):
+        self.action_while_update()
+        if self.real_image is not self._draw_image:
+            if time.time() - self._last_tmp_time > self._tmp_delay:
+                self._draw_image = self.real_image
 
 
 class WindowError(Exception):

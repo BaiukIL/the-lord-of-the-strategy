@@ -35,7 +35,10 @@ class GameObject(window.Window, ABC):
     def decrease_health(self, value: int):
         if value >= 0:
             self.health -= value
-            self._image.fill()
+            tmp_image = pygame.Surface(self.rect.size)
+            tmp_image.blit(self.real_image, (0, 0))
+            tmp_image.fill((150, 0, 0))
+            self.set_temporary_image(tmp_image, delay=0.06)
         else:
             raise GameObjectError("Can't decrease negative health: {}. Use increase_health for this".format(value))
         if self.health <= 0:
@@ -54,9 +57,8 @@ class GameObject(window.Window, ABC):
     def destroy(self):
         """Player can ruin this object using this method
         and get half of its cost back"""
-        self._interface.hide_all()
         self.empire.resources += self.cost // 2
-        self.kill()
+        self.die()
 
     def die(self):
         """This method is called when object is out of health"""
@@ -95,10 +97,6 @@ class GameObject(window.Window, ABC):
     @property
     def object_interaction_commands(self) -> List[Tuple[pygame.Surface, Callable, Text]]:
         return []
-
-    def update(self, *args):
-        """There might be animation update (i.e. effect of object moving)"""
-        pass
 
 
 class GameObjectError(Exception):

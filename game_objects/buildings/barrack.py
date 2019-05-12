@@ -83,25 +83,28 @@ class Barrack(base_building.Building, ABC):
 class ElvesBarrack(Barrack):
     def _create_builder(self, size: Tuple[int, int]) -> unit_mod.Builder:
         return unit_mod.ElfBuilder(empire=self.empire,
-                                   health=4,
-                                   speed=7,
+                                   health=2,
+                                   speed=12,
                                    cost=10,
                                    image=img.get_image(self.empire).BUILDER,
                                    size=size)
 
     def _create_scout(self, size: Tuple[int, int]) -> unit_mod.Scout:
         return unit_mod.ElfScout(empire=self.empire,
-                                 health=6,
-                                 speed=10,
-                                 cost=10,
+                                 health=3,
+                                 speed=12,
+                                 damage=1,
+                                 fight_distance=300,
+                                 cost=5,
                                  image=img.get_image(self.empire).SCOUT,
                                  size=size)
 
     def _create_warrior(self, size: Tuple[int, int]) -> unit_mod.Warrior:
         return unit_mod.ElfWarrior(empire=self.empire,
-                                   health=6,
-                                   speed=5,
-                                   damage=1,
+                                   health=5,
+                                   speed=6,
+                                   damage=2,
+                                   fight_distance=500,
                                    cost=10,
                                    image=img.get_image(self.empire).WARRIOR,
                                    size=size)
@@ -119,16 +122,19 @@ class OrcsBarrack(Barrack):
     def _create_scout(self, size: Tuple[int, int]) -> unit_mod.Scout:
         return unit_mod.OrcScout(empire=self.empire,
                                  health=3,
-                                 speed=8,
+                                 speed=6,
+                                 damage=2,
+                                 fight_distance=500,
                                  cost=10,
                                  image=img.get_image(self.empire).SCOUT,
                                  size=size)
 
     def _create_warrior(self, size: Tuple[int, int]) -> unit_mod.Warrior:
         return unit_mod.OrcWarrior(empire=self.empire,
-                                   health=3,
-                                   speed=4,
-                                   damage=1,
+                                   health=5,
+                                   speed=3,
+                                   damage=4,
+                                   fight_distance=50,
                                    cost=10,
                                    image=img.get_image(self.empire).WARRIOR,
                                    size=size)
@@ -137,25 +143,28 @@ class OrcsBarrack(Barrack):
 class DwarfsBarrack(Barrack):
     def _create_builder(self, size: Tuple[int, int]) -> unit_mod.Builder:
         return unit_mod.DwarfBuilder(empire=self.empire,
-                                     health=2,
+                                     health=4,
                                      speed=6,
-                                     cost=10,
+                                     cost=3,
                                      image=img.get_image(self.empire).BUILDER,
                                      size=size)
 
     def _create_scout(self, size: Tuple[int, int]) -> unit_mod.Scout:
         return unit_mod.DwarfScout(empire=self.empire,
-                                   health=3,
-                                   speed=7,
+                                   health=6,
+                                   speed=6,
+                                   damage=1,
+                                   fight_distance=500,
                                    cost=10,
                                    image=img.get_image(self.empire).SCOUT,
                                    size=size)
 
     def _create_warrior(self, size: Tuple[int, int]) -> unit_mod.Warrior:
         return unit_mod.DwarfWarrior(empire=self.empire,
-                                     health=3,
+                                     health=10,
                                      speed=3,
                                      damage=1,
+                                     fight_distance=50,
                                      cost=10,
                                      image=img.get_image(self.empire).WARRIOR,
                                      size=size)

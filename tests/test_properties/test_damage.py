@@ -1,5 +1,5 @@
 import unittest
-from entities.object_properties import damage
+from trash.object_properties import damage
 
 
 class TestHealth(unittest.TestCase):

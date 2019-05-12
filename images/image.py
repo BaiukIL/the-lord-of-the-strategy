@@ -32,6 +32,7 @@ class ImageProxy(metaclass=templates.Singleton):
     
     
 class ElvesImages(ImageProxy):
+    EMPIRE_ICON = 'elves empire icon.png'
     CITY = 'elves city.png'
     BARRACK = 'elves barrack.png'
     MINE = 'elves mine.png'
@@ -42,6 +43,7 @@ class ElvesImages(ImageProxy):
     
 
 class OrcsImages(ImageProxy):
+    EMPIRE_ICON = 'orcs empire icon.png'
     CITY = 'orcs city.png'
     BARRACK = 'orcs barrack.png'
     MINE = 'orcs mine.png'
@@ -52,6 +54,7 @@ class OrcsImages(ImageProxy):
 
     
 class DwarfsImages(ImageProxy):
+    EMPIRE_ICON = 'dwarfs empire icon.png'
     CITY = 'dwarfs city.png'
     BARRACK = 'dwarfs barrack.png'
     MINE = 'dwarfs mine.png'

@@ -25,7 +25,7 @@ class Unit(base_object.GameObject, ABC):
             self.speed.scale_to_length(self.max_speed)
 
     def move(self):
-        previous_pos = self.cur_real_pos.copy()
+        previous_pos = self.rect.center
         if abs(self.rect.centerx - self.destination[0]) >= self.max_speed or abs(
                 self.rect.centery - self.destination[1]) >= self.max_speed:
             self.cur_real_pos[0] += self.speed.x
@@ -49,7 +49,7 @@ class Unit(base_object.GameObject, ABC):
                 else:
                     self.rect.bottom = obj.rect.top
                 self.cur_real_pos[1] = self.rect.centery
-        if self.cur_real_pos == previous_pos:
+        if self.rect.center == previous_pos:
             self.stop_move()
 
     def stop_move(self):
@@ -66,33 +66,29 @@ class Unit(base_object.GameObject, ABC):
         result += "Speed: {}\n".format(self.max_speed)
         return result
 
-    def update(self, *args):
+    def action_while_update(self):
         self.set_move_to(self.destination)
         if self.speed.length() != 0:
             self.move()
 
 
 class Warrior(Unit):
-
-    def __init__(self, empire, health: int, speed: int, damage: int, cost: int, size: Tuple[int, int],
+    def __init__(self, empire, health: int, speed: int, damage: int, fight_distance: int, cost: int,
+                 size: Tuple[int, int],
                  image: pygame.Surface):
         Unit.__init__(self, empire=empire, size=size, image=image, health=health, speed=speed, cost=cost)
         self.damage = damage
+        self.fight_distance = fight_distance
         self.attack_target = pygame.sprite.GroupSingle()
         self.attack_delay = 3  # in seconds
         self._last_attack_call_time = time.time()
-        self.fight_distance = 150
 
     def attack(self, obj: base_object.GameObject):
-        if pygame.Vector2(self.rect.center).distance_to(pygame.Vector2(obj.rect.center)) < self.fight_distance:
+        if pygame.Vector2(self.rect.center).distance_to(obj.rect.center) < self.fight_distance:
             self.stop_move()
-            self._attack_animation()
             obj.decrease_health(self.damage)
         else:
             self.set_move_to(obj.rect.center)
-
-    def _attack_animation(self):
-        pass
 
     def handle_empty_click(self, mouse_pos: Tuple[int, int]):
         self.attack_target.empty()
@@ -111,8 +107,9 @@ class Warrior(Unit):
         result += "Damage: {}\n".format(self.damage)
         return result
 
-    def update(self, *args):
-        self.set_move_to(self.destination)
+    def action_while_update(self, *args):
+        if self.rect.center != self.destination:
+            self.set_move_to(self.destination)
         for target in self.attack_target:
             if time.time() - self._last_attack_call_time > self.attack_delay:
                 self.attack(target)
@@ -133,7 +130,7 @@ class DwarfWarrior(Warrior):
     pass
 
 
-class Scout(Unit):
+class Scout(Warrior):
     pass
 
 

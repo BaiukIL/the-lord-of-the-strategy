@@ -48,6 +48,7 @@ class Selected(window.Window):
     def __init__(self):
         window.Window.__init__(self, configs.SELECTED_SIZE)
         self.rect.bottomleft = (0, configs.SCR_HEIGHT)
+        self.text = str()
         self.set_default_alpha(170)
         self.set_never_bordered()
         self.hide()
@@ -59,7 +60,7 @@ class Selected(window.Window):
     def select_object(self, obj):
         self.clear()
         self.active()
-        self._place_object_image(obj._image)
+        self._place_object_image(obj.real_image)
         self._place_object_text(obj.info())
         self._show_empire_info(obj.empire)
 
@@ -68,9 +69,9 @@ class Selected(window.Window):
 
     def _place_object_image(self, image: pygame.Surface):
         selected_img_side_size = min(self.rect.width // 2, self.rect.height // 2)
-        self._image.blit(pygame.transform.scale(image, (selected_img_side_size,
-                                                        selected_img_side_size)),
-                         (self.rect.width // 2, self.rect.height // 2))
+        self.real_image.blit(pygame.transform.scale(image, (selected_img_side_size,
+                                                            selected_img_side_size)),
+                             (self.rect.width // 2, self.rect.height // 2))
 
     def _place_object_text(self, text: Text):
         font = pygame.font.SysFont(name='Ani', size=20)
@@ -79,7 +80,7 @@ class Selected(window.Window):
         # interface_config.BORDERS_SIZE is indent from left side of selected screen
         line_pos = [0, 0]
         for line in text.split('\n'):
-            self._image.blit(font.render(line, True, configs.SELECTED_TEXT_COLOR), line_pos)
+            self.real_image.blit(font.render(line, True, (0, 0, 0)), line_pos)
             line_pos[1] += indent
 
 
@@ -104,10 +105,10 @@ class Minimap(window.Window):
         self._frame.x = int(pos[0] * self.rect.width / map.Map().rect.width)
         self._frame.y = int(pos[1] * self.rect.height / map.Map().rect.height)
 
-    def update(self):
+    def action_while_update(self):
         self.clear()
-        self._image.blit(pygame.transform.scale(map.Map().image, self.rect.size), (0, 0))
-        pygame.draw.rect(self._image, self._borders_color, self._frame, 1)
+        self.real_image.blit(pygame.transform.scale(map.Map().image, self.rect.size), (0, 0))
+        pygame.draw.rect(self.real_image, self._borders_color, self._frame, 1)
 
 
 class EmpireInfo:
@@ -127,12 +128,12 @@ class EmpireInfo:
     def update(self):
         font = pygame.font.SysFont(name='Ani', size=30)
         self.resources.clear()
-        self.resources._image.blit(
+        self.resources.real_image.blit(
             font.render('Resources: {}'.format(self.empire.resources), True, pygame.Color('black')), (0, 0))
 
     def draw(self, screen: pygame.Surface):
-        screen.blit(self.empire_icon._image, self.empire_icon.rect)
-        screen.blit(self.resources._image, self.resources.rect)
+        screen.blit(self.empire_icon.real_image, self.empire_icon.rect)
+        screen.blit(self.resources.real_image, self.resources.rect)
 
 
 class Interface(templates.Handler, metaclass=templates.Singleton):

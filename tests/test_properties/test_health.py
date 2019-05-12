@@ -1,10 +1,10 @@
 import unittest
-from entities.object_properties import health
+from trash.object_properties import health
 
 
 # Health, but not abstract (for testing only)
 class NonAbstractHealth(health.Health):
-    def _destroy(self):
+    def destroy(self):
         pass
 
 

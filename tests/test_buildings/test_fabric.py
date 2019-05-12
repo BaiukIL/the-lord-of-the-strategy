@@ -1,12 +1,12 @@
 import unittest
-from entities import races, empire, city
-from entities.buildings import fabric
-from entities.buildings import barrack, mine, wall
+from game_objects import races, empire, city
+from game_objects.buildings import fabric
+from game_objects.buildings import barrack, mine, wall
 
 
 class TestFabric(unittest.TestCase):
     def setUp(self) -> None:
-        self.city = city.City("Forut", empire.Empire(races.orcs))
+        self.city = city.City("Forut", empire.Empire(races.ORCS))
         self.fabric = fabric.Manufacture().create_fabric(self.city)
 
     def test_default(self):

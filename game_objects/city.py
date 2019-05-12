@@ -47,6 +47,20 @@ class City(base_object.GameObject):
         self._action_after_building_creation(building, rect)
         return building
 
+    def info(self) -> Text:
+        result = str()
+        result += "Race: {}\n".format(self.empire.race)
+        result += "Empire: {}\n".format(self.empire.name)
+        result += "Name: {}\n".format(self.name)
+        result += "Health: {}\n".format(self.health)
+        return result
+
+    @property
+    def mouse_interaction_commands(self) -> List[Tuple[pygame.Surface, Callable, Text]]:
+        return [(img.get_image(self.empire).BARRACK, self.build_barrack, 'build barrack'),
+                (img.get_image(self.empire).WALL, self.build_wall, 'build wall'),
+                (img.get_image(self.empire).MINE, self.build_mine, 'build mine')]
+
     def _get_building_rect(self, size: Tuple[int, int], mouse_pos: Tuple[int, int]) -> pygame.Rect:
         rect = pygame.Rect(mouse_pos, size)
         rect.center = mouse_pos
@@ -61,17 +75,3 @@ class City(base_object.GameObject):
     def _action_after_building_creation(self, building, rect: pygame.Rect):
         self.buildings.add(building)
         building.rect = rect
-
-    def info(self) -> Text:
-        result = str()
-        result += "Race: {}\n".format(self.empire.race)
-        result += "Empire: {}\n".format(self.empire.name)
-        result += "Name: {}\n".format(self.name)
-        result += "Health: {}\n".format(self.health)
-        return result
-
-    @property
-    def mouse_interaction_commands(self) -> List[Tuple[pygame.Surface, Callable, Text]]:
-        return [(img.get_image(self.empire).BARRACK, self.build_barrack, 'build barrack'),
-                (img.get_image(self.empire).WALL, self.build_wall, 'build wall'),
-                (img.get_image(self.empire).MINE, self.build_mine, 'build mine')]
