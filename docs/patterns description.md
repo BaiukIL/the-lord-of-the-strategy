@@ -94,6 +94,7 @@ However, it is bad idea to make "realization" field for every entity, for in thi
 object structures (like pygame.sprite.Group), which are very useful. It is impossible because
 these structures can only deal with objects derived from pygame.sprite.Sprite. Since my abstractions are not derived from
 this class they cannot be used in such structures. Thus bridge pattern as composition of entities is not suitable.
+
 ------------------------------------------------------------------------------------------------------------------------
 **Composite & Iterator & Visitor**
 
@@ -104,6 +105,7 @@ This way we have a tree-like units structure which is great place for composite.
 Notice that composite just stores object and sets the hierarchy. To iterate over units we use iterator.
 However, it's good idea to add visitor, for iterator should not know about nodes realizations. This
 construction allows us to separate logic to classes.
+
 ------------------------------------------------------------------------------------------------------------------------
 **Facade**.
 
@@ -118,7 +120,6 @@ It has just a few methods which hide a complex structure relations of different 
 
 ------------------------------------------------------------------------------------------------------------------------
 **Behavioral Patterns**
-
 ------------------------------------------------------------------------------------------------------------------------
 **REFUSE CoR**.
 
@@ -130,6 +131,7 @@ However, a great part of objects don't know about other objects and commands don
 Hereby, by including them in the chain we increase program cohesion, which is bad.
 Moreover, if we want to build CoR in this situation, we always need to track if window falls out of the chain and
 replace one if it is. Considering that there's a load of disappearing objects, it becomes a tough task.
+
 ------------------------------------------------------------------------------------------------------------------------
 **Command**.
 
@@ -137,6 +139,7 @@ Implementations: interface/button.py
     
 This one uses to store actions (functions) in buttons. Some actions need args and can't be called immediately.
 Buttons remember what actions they should react (handle_*_click) and takes the appropriate args of the context.
+
 ------------------------------------------------------------------------------------------------------------------------
 **State**.
 
@@ -145,9 +148,11 @@ Implementations: interface/window.py
 Window can have a few states: `hidden` (don't show on screen; don't react any clicks), `passive` (draws without
 borders; ready to react a click and turn to active state) and `active` (draws with borders; if clicked turn to
 passive state). It's comfortable to create class for every state and delegate any work connected with state to it.
+
 ------------------------------------------------------------------------------------------------------------------------
 **REFUSE Observer**.
 
 This pattern already exists in pygame as a `kill` command. When we kill object, all the groups it's consist in
 remove the object.
+
 ------------------------------------------------------------------------------------------------------------------------
