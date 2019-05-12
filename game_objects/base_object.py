@@ -1,24 +1,27 @@
 import pygame
+from abc import ABC
+# project modules #
 import game
 import exceptions
 from interface.interface import Interface
-from abc import ABC
 from interface import window
-from images import image as img
-from typing import *
+import image as img
+from typing import Tuple, Text, List, Callable
 
 
 class GameObject(window.Window, ABC):
     """Base class for all objects, belonging to any empire"""
 
-    def __init__(self, empire, health, cost: int, image: pygame.Surface, size: Tuple[int, int]):
+    def __init__(self, empire, health: int, cost: int, image: pygame.Surface, size: Tuple[int, int]):
+        assert health > 0
+        assert cost >= 0
         self.empire = empire
-        self.health = health
         self.cost = cost
+        self.health = health
         if empire.resources - cost >= 0:
             empire.resources -= cost
         else:
-            raise exceptions.CreationResourcesLimitError("Can't create object - lack of resources")
+            raise exceptions.CreationResourcesLimitError(f"Can't create object - lack of resources")
         window.Window.__init__(self, size=size, image=image)
         game.Game().objects.add(self)
         self.empire.objects.add(self)
@@ -27,28 +30,25 @@ class GameObject(window.Window, ABC):
         self.icon_image = image
 
     def increase_health(self, value: int):
-        if value >= 0:
-            self.health += value
-        else:
-            raise GameObjectError("Can't increase negative health: {}. Use decrease_health for this".format(value))
+        assert value >= 0
+        self.health += value
 
     def decrease_health(self, value: int):
         if value >= 0:
             self.health -= value
             tmp_image = pygame.Surface(self.rect.size)
-            tmp_image.blit(self.real_image, (0, 0))
             tmp_image.fill((150, 0, 0))
             self.set_temporary_image(tmp_image, delay=0.06)
         else:
-            raise GameObjectError("Can't decrease negative health: {}. Use increase_health for this".format(value))
+            raise GameObjectError(f"Can't decrease negative health: {value}. Use increase_health for this")
         if self.health <= 0:
             self.die()
 
     def info(self) -> Text:
         result = str()
-        result += "Race: {}\n".format(self.empire.race)
-        result += "Empire: {}\n".format(self.empire.name)
-        result += "Health: {}\n".format(self.health)
+        result += f"Race: {self.empire.race}\n"
+        result += f"Empire: {self.empire.name}\n"
+        result += f"Health: {self.health}\n"
         return result
 
     def upgrade(self):
@@ -62,7 +62,8 @@ class GameObject(window.Window, ABC):
 
     def die(self):
         """This method is called when object is out of health"""
-        self._interface.hide_all()
+        if self._interface.buffer.sprite is self:
+            self._interface.hide_all()
         self.kill()
 
     # Window methods

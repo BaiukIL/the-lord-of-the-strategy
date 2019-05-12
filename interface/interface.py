@@ -1,8 +1,8 @@
 import pygame
 from interface import window, button
-import map
+from game_objects import map
 import configs
-import templates
+import singleton
 from typing import *
 
 
@@ -136,8 +136,8 @@ class EmpireInfo:
         screen.blit(self.resources.real_image, self.resources.rect)
 
 
-class Interface(templates.Handler, metaclass=templates.Singleton):
-    """Interface is a mediator which coordinates interface windows work."""
+class Interface(metaclass=singleton.Singleton):
+    """Interface is a facade which covers interface windows work."""
 
     def __init__(self, player_empire, enemy_empire):
         self.player_empire = player_empire
@@ -190,7 +190,8 @@ class Interface(templates.Handler, metaclass=templates.Singleton):
     def handle_empty_click(self, mouse_pos: Tuple[int, int]):
         # Check if selected object can handle empty click
         for buffered in self.buffer:
-            buffered.handle_empty_click(get_global_mouse_pos(mouse_pos))
+            if buffered.empire is self.player_empire:
+                buffered.handle_empty_click(get_global_mouse_pos(mouse_pos))
         # If command is activated and can handle empty click, it'll be executed
         for com in self.command:
             if com.activated:
@@ -199,7 +200,8 @@ class Interface(templates.Handler, metaclass=templates.Singleton):
 
     def handle_object_click(self, obj):
         for buffered in self.buffer:
-            buffered.handle_object_click(obj)
+            if buffered.empire is self.player_empire:
+                buffered.handle_object_click(obj)
         for com in self.command:
             if com.activated:
                 com.handle_object_click(obj)

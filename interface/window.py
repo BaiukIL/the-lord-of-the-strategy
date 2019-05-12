@@ -1,9 +1,8 @@
 import pygame
 import time
 import configs
-import templates
 from abc import ABC
-from typing import *
+from typing import Tuple
 
 
 class WindowState(ABC):
@@ -52,7 +51,7 @@ class ActiveWindowState(WindowState):
         self._window.return_click_action()
 
 
-class Window(pygame.sprite.Sprite, templates.Handler):
+class Window(pygame.sprite.Sprite):
     """Surface extension"""
 
     _state: WindowState
@@ -144,6 +143,12 @@ class Window(pygame.sprite.Sprite, templates.Handler):
     def remove_borders(self):
         if not self._constant_bordered:
             self._bordered = False
+
+    def handle_click(self, mouse_pos: Tuple[int, int]) -> bool:
+        if self.can_handle(mouse_pos):
+            self.handle(mouse_pos)
+            return True
+        return False
 
     def can_handle(self, mouse_pos: Tuple[int, int]) -> bool:
         return self._state.can_handle(mouse_pos)

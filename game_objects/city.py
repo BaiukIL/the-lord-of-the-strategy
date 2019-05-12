@@ -1,13 +1,10 @@
 import pygame
-import exceptions
+from typing import Tuple, List, Callable, Text
+# project modules #
 from game_objects import base_object
+import exceptions
 from game_objects.buildings import fabric
-from images import image as img
-from typing import *
-
-
-class CityError(Exception):
-    pass
+import image as img
 
 
 class City(base_object.GameObject):
@@ -49,10 +46,10 @@ class City(base_object.GameObject):
 
     def info(self) -> Text:
         result = str()
-        result += "Race: {}\n".format(self.empire.race)
-        result += "Empire: {}\n".format(self.empire.name)
-        result += "Name: {}\n".format(self.name)
-        result += "Health: {}\n".format(self.health)
+        result += f"Race: {self.empire.race}\n"
+        result += f"Empire: {self.empire.name}\n"
+        result += f"Name: {self.name}\n"
+        result += f"Health: {self.health}\n"
         return result
 
     @property
@@ -70,7 +67,7 @@ class City(base_object.GameObject):
         sprite = pygame.sprite.Sprite()
         sprite.rect = rect
         if pygame.sprite.spritecollideany(sprite, self._all_objects):
-            raise exceptions.CreationPlaceError("Can't create building here - place is occupied")
+            raise exceptions.CreationPlaceError(f"Can't create building here - place is occupied")
 
     def _action_after_building_creation(self, building, rect: pygame.Rect):
         self.buildings.add(building)

@@ -1,8 +1,9 @@
+from abc import ABC, abstractmethod
+from typing import Tuple
+# project modules #
+import image as img
 from game_objects.buildings import barrack, mine, wall
 from game_objects import races
-from abc import ABC, abstractmethod
-from images import image as img
-from typing import Tuple
 
 
 class Manufacture:

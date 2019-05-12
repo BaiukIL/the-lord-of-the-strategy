@@ -1,10 +1,10 @@
 import pygame
 # project modules #
 import configs
-import templates
+import singleton
 
 
-class Map(pygame.sprite.Sprite, metaclass=templates.Singleton):
+class Map(pygame.sprite.Sprite, metaclass=singleton.Singleton):
 
     image: pygame.Surface
     rect: pygame.Rect

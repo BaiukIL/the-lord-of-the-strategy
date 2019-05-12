@@ -1,13 +1,18 @@
 import unittest
+from interface.interface import Interface
+from game import Game
 from game_objects import races, empire, army
 
 
 class TestEmpire(unittest.TestCase):
     def setUp(self) -> None:
-        self.empire = empire.Empire(races.ELVES)
+        self.empire = empire.Empire(races.ORCS)
+        self.other_empire = empire.Empire(races.ELVES)
+        Interface(self.empire, self.other_empire)
+        Game(self.empire, self.other_empire)
 
     def test_default(self):
-        self.assertEqual(self.empire.race, races.ELVES)
+        self.assertEqual(self.empire.race, races.ORCS)
         self.assertEqual(self.empire.name, "DefaultEmpireName")
         self.assertTrue(isinstance(self.empire.army, army.Army))
         self.assertEqual(len(self.empire.cities), 0)
@@ -18,10 +23,10 @@ class TestEmpire(unittest.TestCase):
         self.assertEqual(new_empire.name, "My Empire")
 
     def test_set_city(self):
-        self.empire.set_city("Livur")
-        self.assertIn("Livur", self.empire.cities)
-        self.empire.set_city("Yoigh")
-        self.assertIn("Yoigh", self.empire.cities)
+        city1 = self.empire.set_city("Livur")
+        self.assertTrue(self.empire.cities.has(city1))
+        city2 = self.empire.set_city("Yoigh")
+        self.assertTrue(self.empire.cities.has(city2))
         self.assertRaises(empire.EmpireError, lambda: self.empire.set_city("Livur"))
         self.assertRaises(empire.EmpireError, lambda: self.empire.set_city("Yoigh"))
 
@@ -29,28 +34,8 @@ class TestEmpire(unittest.TestCase):
         self.assertRaises(empire.EmpireError, lambda: self.empire.get_city("ert"))
         self.empire.set_city("Livur")
 
-        self.assertEqual(self.empire.get_city("Livur"), self.empire.cities["Livur"])
+        self.assertIn(self.empire.get_city("Livur"), self.empire.cities)
         self.assertEqual(self.empire.get_city("Livur").name, "Livur")
         self.empire.set_city("Yoigh")
-        self.assertEqual(self.empire.get_city("Yoigh"), self.empire.cities["Yoigh"])
-        self.assertEqual(self.empire.get_city("Livur"), self.empire.cities["Livur"])
+        self.assertIn(self.empire.get_city("Yoigh"), self.empire.cities)
         self.assertEqual(self.empire.get_city("Yoigh").name, "Yoigh")
-
-    def test_destroy_city(self):
-        self.assertRaises(empire.EmpireError, lambda: self.empire.destroy_city("aww"))
-
-        self.empire.set_city("Livur")
-        self.empire.set_city("Yoigh")
-        self.assertRaises(empire.EmpireError, lambda: self.empire.destroy_city("weeer"))
-
-        self.empire.destroy_city("Livur")
-        self.assertRaises(empire.EmpireError, lambda: self.empire.get_city("Livur"))
-        self.assertRaises(empire.EmpireError, lambda: self.empire.destroy_city("Livur"))
-
-        self.empire.set_city("Livur")
-        self.assertEqual(self.empire.get_city("Livur").name, "Livur")
-        self.empire.destroy_city("Livur")
-
-        self.empire.destroy_city("Yoigh")
-        self.assertRaises(empire.EmpireError, lambda: self.empire.destroy_city("Yoigh"))
-        self.assertRaises(empire.EmpireError, lambda: self.empire.get_city("Yoigh"))

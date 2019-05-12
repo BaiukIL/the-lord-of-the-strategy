@@ -1,5 +1,7 @@
 import unittest
-from game_objects import races, empire, city
+from interface.interface import Interface
+from game import Game
+from game_objects import races, empire
 from game_objects.buildings import fabric
 from game_objects.buildings import barrack, mine, wall
 
@@ -7,28 +9,30 @@ from game_objects.buildings import barrack, mine, wall
 class TestCity(unittest.TestCase):
     def setUp(self) -> None:
         self.empire = empire.Empire(races.ORCS)
-        self.city = city.City("Forut", self.empire)
+        self.other_empire = empire.Empire(races.ELVES)
+        Interface(self.empire, self.other_empire)
+        Game(self.empire, self.other_empire)
+        self.city = self.empire.set_city(name='test city', cost=50)
 
     def test_default(self):
-        self.assertEqual(self.city._master_empire, self.empire)
-        self.assertEqual(self.city.race, races.ORCS)
-        self.assertEqual(self.city.name, "Forut")
+        self.assertEqual(self.city.empire, self.empire)
+        self.assertEqual(self.city.name, 'test city')
         self.assertEqual(len(self.city.buildings), 0)
         self.assertTrue(isinstance(self.city._fabric, fabric.OrcsFabric))
 
     def test_building_creation_and_deletion(self):
-        wall1 = self.city.build_wall()
-        barrack1 = self.city.build_barrack()
-        mine1 = self.city.build_mine()
-        mine2 = self.city.build_mine()
+        wall1 = self.city.build_wall((300, 0))
+        barrack1 = self.city.build_barrack((300, 300))
+        mine1 = self.city.build_mine((0, 300))
+        mine2 = self.city.build_mine((700, 700))
 
-        self.assertEqual(wall1.race, races.ORCS)
+        self.assertEqual(wall1.empire, self.empire)
         self.assertTrue(isinstance(wall1, wall.Wall))
-        self.assertEqual(barrack1.race, races.ORCS)
+        self.assertEqual(barrack1.empire, self.empire)
         self.assertTrue(isinstance(barrack1, barrack.OrcsBarrack))
-        self.assertEqual(mine1.race, races.ORCS)
+        self.assertEqual(mine1.empire, self.empire)
         self.assertTrue(isinstance(mine1, mine.Mine))
-        self.assertEqual(mine2.race, races.ORCS)
+        self.assertEqual(mine2.empire, self.empire)
         self.assertTrue(isinstance(mine2, mine.Mine))
 
         self.assertIn(wall1, self.city.buildings)
@@ -36,15 +40,10 @@ class TestCity(unittest.TestCase):
         self.assertIn(mine1, self.city.buildings)
         self.assertIn(mine2, self.city.buildings)
 
-        self.city.remove_building(wall1)
+        wall1.kill()
         self.assertNotIn(wall1, self.city.buildings)
-        self.assertRaises(city.CityError, lambda: self.city.remove_building(wall1))
 
-        self.city.remove_building(mine1)
+        wall1.kill()
         self.assertNotIn(wall1, self.city.buildings)
-        self.assertRaises(city.CityError, lambda: self.city.remove_building(mine1))
 
         self.assertIn(mine2, self.city.buildings)
-        self.city.remove_building(mine2)
-        self.assertNotIn(wall1, self.city.buildings)
-        self.assertRaises(city.CityError, lambda: self.city.remove_building(mine2))

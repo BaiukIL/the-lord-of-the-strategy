@@ -15,9 +15,9 @@ class Mine(base_building.Building):
         self.last_call_time = time.time()
 
     def mine(self):
-        self.empire.resources += 20
+        self.empire.resources += 5
 
-    def update(self, *args):
+    def action_while_update(self):
         if time.time() - self.last_call_time > self.reload:
             self.last_call_time = time.time()
             self.mine()
