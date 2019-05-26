@@ -78,7 +78,7 @@ class Barrack(base_building.Building, ABC):
                 (img.get_image(self.empire).BUILDER, self.create_builder, 'create builder'),
                 (img.get_image(self.empire).WARRIOR, self.create_warrior, 'create warrior'),
                 (img.get_image().UPGRADE, self.upgrade, 'Upgrade'),
-                (img.get_image().REMOVE, self.destroy, 'Remove')]
+                (img.get_image().REMOVE, self.delete, 'Remove')]
 
 
 class ElvesBarrack(Barrack):

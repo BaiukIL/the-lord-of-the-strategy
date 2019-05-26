@@ -1,60 +1,15 @@
 import pygame
 import time
-import configs
-from abc import ABC
 from typing import Tuple
-
-
-class WindowState(ABC):
-    """State pattern"""
-
-    def __init__(self, window: 'Window'):
-        self._window = window
-
-    def can_handle(self, mouse_pos: Tuple[int, int]) -> bool:
-        if self._window.rect.collidepoint(mouse_pos):
-            return True
-        return False
-
-    def handle(self, mouse_pos: Tuple[int, int]):
-        pass
-
-
-class HiddenWindowState(WindowState):
-    def __init__(self, window: 'Window'):
-        super().__init__(window)
-        self._window.real_image.set_alpha(0)
-
-    def can_handle(self, mouse_pos: Tuple[int, int]) -> bool:
-        return False
-
-
-class PassiveWindowState(WindowState):
-    def __init__(self, window: 'Window'):
-        super().__init__(window)
-        self._window.real_image.set_alpha(self._window._default_alpha)
-        self._window.remove_borders()
-
-    def handle(self, mouse_pos: Tuple[int, int]):
-        self._window.active()
-        self._window.click_action()
-
-
-class ActiveWindowState(WindowState):
-    def __init__(self, window: 'Window'):
-        super().__init__(window)
-        self._window.real_image.set_alpha(self._window._default_alpha)
-        self._window.add_borders()
-
-    def handle(self, mouse_pos: Tuple[int, int]):
-        self._window.passive()
-        self._window.return_click_action()
+# project modules #
+import configs
+from windows import window_states
 
 
 class Window(pygame.sprite.Sprite):
     """Surface extension"""
 
-    _state: WindowState
+    _state: window_states.WindowState
 
     # Message which appears when player points to the window
     _hint_message = None
@@ -121,17 +76,29 @@ class Window(pygame.sprite.Sprite):
             image = self._draw_image
         return image
 
-    def change_state(self, state: WindowState):
+    def change_state(self, state: window_states.WindowState):
         self._state = state
 
     def hide(self):
-        self.change_state(HiddenWindowState(self))
+        self.change_state(window_states.HiddenWindowState(self))
+        self.action_while_hide()
+
+    def action_while_hide(self):
+        pass
 
     def passive(self):
-        self.change_state(PassiveWindowState(self))
+        self.change_state(window_states.PassiveWindowState(self))
+        self.action_while_passive()
+
+    def action_while_passive(self):
+        pass
 
     def active(self):
-        self.change_state(ActiveWindowState(self))
+        self.change_state(window_states.ActiveWindowState(self))
+        self.action_while_active()
+
+    def action_while_active(self):
+        pass
 
     def clear(self):
         self.real_image.fill((0, 0, 0, 0))
@@ -145,23 +112,23 @@ class Window(pygame.sprite.Sprite):
             self._bordered = False
 
     def handle_click(self, mouse_pos: Tuple[int, int]) -> bool:
-        if self.can_handle(mouse_pos):
+        if self.can_handle_click(mouse_pos):
             self.handle(mouse_pos)
             return True
         return False
 
-    def can_handle(self, mouse_pos: Tuple[int, int]) -> bool:
+    def can_handle_click(self, mouse_pos: Tuple[int, int]) -> bool:
         return self._state.can_handle(mouse_pos)
 
     def handle(self, mouse_pos: Tuple[int, int]):
         self._state.handle(mouse_pos)
 
-    def click_action(self):
+    def first_click_action(self):
         """Empty method which can be overridden.
         It's called when window is clicked in passive state"""
         pass
 
-    def return_click_action(self):
+    def second_click_action(self):
         """Empty method which can be overridden.
         It's called when window is clicked in active state"""
         pass

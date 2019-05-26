@@ -16,8 +16,8 @@ class City(base_object.GameObject):
                                         image=image,
                                         size=size)
         self.name = name
-        self.buildings = pygame.sprite.Group()
         self.empire.cities.add(self)
+        self.buildings = pygame.sprite.Group()
         self._fabric = fabric.Manufacture().create_fabric(self.empire)
 
     def build_barrack(self, mouse_pos: Tuple[int, int]):

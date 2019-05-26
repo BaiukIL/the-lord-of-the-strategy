@@ -5,7 +5,8 @@ import pygame
 from game import Game
 from game_objects import empire, races, map
 from AI import AI
-from interface.interface import Interface, get_global_mouse_pos
+from interface.interface import Interface
+from interface import click_handler
 import configs
 import user_configs
 import image as img
@@ -88,17 +89,7 @@ def play_game():
         mouse_pos = pygame.mouse.get_pos()
 
         if mouse_pressed:
-            handled = False
-            # check if any of interface windows can handle click
-            if interface.handle_click(mouse_pos):
-                handled = True
-            else:
-                for obj in game.objects:
-                    # check if any of game objects can handle click
-                    if obj.handle_click(get_global_mouse_pos(mouse_pos)):
-                        handled = True
-            if not handled:
-                interface.handle_empty_click(mouse_pos)
+            click_handler.handle_click(mouse_pos)
 
         # AI is singleton, which has initialized before
         AI().play_step()

@@ -1,6 +1,7 @@
 import pygame
 import time
-from typing import *
+from typing import Text
+# project modules #
 
 
 class Message(pygame.sprite.Sprite):

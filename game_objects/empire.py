@@ -10,10 +10,12 @@ class Empire:
         self.race = race
         self.name = name
         self.resources = start_resources
+        self.icon = img.get_image(self).EMPIRE_ICON
         self.army = army.Army(empire=self)
         self.objects = pygame.sprite.Group()
+        self.friends = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
         self.cities = pygame.sprite.Group()
-        self.icon = img.get_image(self).EMPIRE_ICON
 
     def alive(self) -> bool:
         return len(self.cities) != 0
@@ -22,7 +24,7 @@ class Empire:
         for city_ in self.cities:
             if city_.name == name:
                 raise EmpireError(f"City {name} has already exists in {self.name} cities")
-        # if it is default city, it doesn't cost anything
+        # if it is default city, it free
         if len(self.cities) == 0:
             cost = 0
         city_ = city.City(empire=self,

@@ -1,12 +1,12 @@
 import pygame
 from abc import ABC
+from typing import Tuple, Text, List, Callable
 # project modules #
 import game
+from interface import click_handler
 import exceptions
-from interface.interface import Interface
-from interface import window
+from windows import window
 import image as img
-from typing import Tuple, Text, List, Callable
 
 
 class GameObject(window.Window, ABC):
@@ -23,11 +23,10 @@ class GameObject(window.Window, ABC):
         else:
             raise exceptions.CreationResourcesLimitError(f"Can't create object - lack of resources")
         window.Window.__init__(self, size=size, image=image)
+        self.icon_image = image
         game.Game().objects.add(self)
         self.empire.objects.add(self)
         self._all_objects = game.Game().objects
-        self._interface = Interface()
-        self.icon_image = image
 
     def increase_health(self, value: int):
         assert value >= 0
@@ -54,38 +53,36 @@ class GameObject(window.Window, ABC):
     def upgrade(self):
         pass
 
-    def destroy(self):
-        """Player can ruin this object using this method
+    def delete(self):
+        """Player can delete object using this method
         and get half of its cost back"""
         self.empire.resources += self.cost // 2
         self.die()
 
     def die(self):
         """This method is called when object is out of health"""
-        if self._interface.buffer.sprite is self:
-            self._interface.hide_all()
+        click_handler.ClickHandler().handle_object_kill(self)
         self.kill()
 
     # Window methods
-    def click_action(self):
-        self._interface.handle_object_click(self)
+    def first_click_action(self):
+        click_handler.ClickHandler().handle_object_first_click(self)
 
-    def return_click_action(self):
-        self._interface.hide_all()
-        pass
+    def second_click_action(self):
+        click_handler.ClickHandler().handle_object_second_click(self)
 
     def handle_empty_click(self, mouse_pos: Tuple[int, int]):
         """Empty method. Here object can handle mouse click."""
         pass
 
-    def handle_object_click(self, obj: 'GameObject'):
-        """Empty method. Here object can handle other (obj) object click."""
+    def interact_with(self, obj: 'GameObject'):
+        """Empty method. Here object can handle other object click."""
         pass
 
     @property
     def default_commands(self) -> List[Tuple[pygame.Surface, Callable, Text]]:
         return [(img.get_image().UPGRADE, self.upgrade, 'Upgrade'),
-                (img.get_image().REMOVE, self.destroy, 'Remove')]
+                (img.get_image().REMOVE, self.delete, 'Remove')]
 
     @property
     def no_interaction_commands(self) -> List[Tuple[pygame.Surface, Callable, Text]]:

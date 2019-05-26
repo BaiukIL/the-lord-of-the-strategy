@@ -25,7 +25,7 @@ class Warrior(unit.Unit):
         self.attack_target.empty()
         self.set_move_to(mouse_pos)
 
-    def handle_object_click(self, obj):
+    def interact_with(self, obj):
         if obj.empire is not self.empire:
             self.attack_target.add(obj)
 

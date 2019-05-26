@@ -1,36 +1,36 @@
 import pygame
+from abc import ABC
+from typing import Tuple, Callable, Text
+# project modules #
 import exceptions
 from interface import message
+from interface import click_handler
 import configs
-from interface import window
-from abc import ABC
-from typing import *
+from windows import window
 
 
 class Button(window.Window, ABC):
     """A window which is located in the middle bottom of the screen.
-    Represents commands which selected object has."""
+    Represents one of the commands selected object has."""
 
-    def __init__(self, image: pygame.Surface, action: Callable, text: Text, interface):
+    def __init__(self, image: pygame.Surface, action: Callable, text: Text):
         window.Window.__init__(self, configs.COMMAND_SIZE, image)
-        self._action = action
-        self.activated = False
+        self._action: Callable = action
+        # shows if command is ready to react impact
+        self._activated = False
         self._hint_message = text
-        self._interface = interface
 
-    def active(self):
-        self.change_state(window.ActiveWindowState(self))
-        self.activated = True
+    def action_while_active(self):
+        self._activated = True
 
-    def passive(self):
-        self.change_state(window.PassiveWindowState(self))
-        self.activated = False
+    def action_while_passive(self):
+        self._activated = False
 
-    def click_action(self):
-        self._interface.change_selected_command(self)
+    def first_click_action(self):
+        click_handler.ClickHandler().handle_command_first_click(self)
 
-    def return_click_action(self):
-        self._interface.change_selected_command(None)
+    def second_click_action(self):
+        click_handler.ClickHandler().handle_command_second_click(self)
 
     def handle_empty_click(self, mouse_pos: Tuple[int, int]):
         pass
@@ -39,19 +39,21 @@ class Button(window.Window, ABC):
         pass
 
     def execute(self, *args):
+        if not self._activated:
+            return
         try:
             self._action(*args)
         except exceptions.CreationError as error:
-            mes = message.Message(str(error), lifetime=2)
-            mes.rect.topleft = self.rect.x, self.rect.y - 70
-            self._interface.messages.add(mes)
+            msg = message.Message(str(error), lifetime=2)
+            msg.rect.topleft = self.rect.x, self.rect.y - 70
+            click_handler.ClickHandler().handle_command_bad_execution(msg)
         finally:
             self.passive()
 
 
 class NoInteractionButton(Button):
-    def click_action(self):
-        self._interface.change_selected_command(self)
+    def first_click_action(self):
+        click_handler.ClickHandler().handle_command_first_click(self)
         self.execute()
 
 
