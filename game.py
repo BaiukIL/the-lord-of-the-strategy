@@ -4,7 +4,8 @@ import singleton
 
 
 class Game(metaclass=singleton.Singleton):
-    """Mediator which links empires and interface"""
+    """ Game is a mediator which links empires and interface. """
+
     objects = pygame.sprite.RenderUpdates()
 
     def __init__(self, player_empire, enemy_empire):

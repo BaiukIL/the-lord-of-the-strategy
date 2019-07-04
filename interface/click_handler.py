@@ -13,7 +13,7 @@ def get_global_mouse_pos(mouse_pos: Tuple[int, int]) -> Tuple[int, int]:
 def handle_click(mouse_pos: Tuple[int, int]):
     handled = False
     # tell interface to handle click
-    if Interface().handle_click(mouse_pos):
+    if Interface().handle_interface_click(mouse_pos):
         handled = True
     #     if interface couldn't handle click, tell objects to handle one
     else:

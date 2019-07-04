@@ -37,7 +37,7 @@ class GameObject(window.Window, ABC):
             self.health -= value
             tmp_image = pygame.Surface(self.rect.size)
             tmp_image.fill((150, 0, 0))
-            self.set_temporary_image(tmp_image, delay=0.06)
+            self.set_tmp_image(tmp_image, delay=0.06)
         else:
             raise GameObjectError(f"Can't decrease negative health: {value}. Use increase_health for this")
         if self.health <= 0:

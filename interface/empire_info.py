@@ -5,6 +5,8 @@ import configs
 
 
 class EmpireInfo:
+    """ A window which shows empire information in upper corner. """
+
     def __init__(self, empire, enemy: bool):
         self.empire = empire
         self.empire_icon = window.Window(size=(100, 100), image=empire.icon)
@@ -21,9 +23,9 @@ class EmpireInfo:
     def update(self):
         font = pygame.font.SysFont(name='Ani', size=30)
         self.resources.clear()
-        self.resources.real_image.blit(
+        self.resources.image.blit(
             font.render(f'Resources: {self.empire.resources}', True, pygame.Color('black')), (0, 0))
 
     def draw(self, screen: pygame.Surface):
-        screen.blit(self.empire_icon.real_image, self.empire_icon.rect)
-        screen.blit(self.resources.real_image, self.resources.rect)
+        screen.blit(self.empire_icon.image, self.empire_icon.rect)
+        screen.blit(self.resources.image, self.resources.rect)

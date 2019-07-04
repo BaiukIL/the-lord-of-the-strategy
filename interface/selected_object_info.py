@@ -6,8 +6,8 @@ import configs
 
 
 class Selected(window.Window):
-    """A window which is located in the left bottom corner of the screen
-    and responsible for showing selected object info."""
+    """ A window which is located in the left bottom corner of the screen
+    and responsible for showing selected object information. """
 
     def __init__(self):
         window.Window.__init__(self, configs.SELECTED_SIZE)
@@ -23,7 +23,7 @@ class Selected(window.Window):
     def replace(self, obj):
         self.clear()
         self.active()
-        self._place_object_image(obj.real_image)
+        self._place_object_image(obj.image)
         self._place_object_text(obj.info())
         self._show_empire_info(obj.empire)
 
@@ -32,7 +32,7 @@ class Selected(window.Window):
 
     def _place_object_image(self, image: pygame.Surface):
         selected_img_side_size = min(self.rect.width // 2, self.rect.height // 2)
-        self.real_image.blit(pygame.transform.scale(image, (selected_img_side_size,
+        self.image.blit(pygame.transform.scale(image, (selected_img_side_size,
                                                             selected_img_side_size)),
                              (self.rect.width // 2, self.rect.height // 2))
 
@@ -43,5 +43,5 @@ class Selected(window.Window):
         # interface_config.BORDERS_SIZE is indent from left side of selected screen
         line_pos = [0, 0]
         for line in text.split('\n'):
-            self.real_image.blit(font.render(line, True, (0, 0, 0)), line_pos)
+            self.image.blit(font.render(line, True, (0, 0, 0)), line_pos)
             line_pos[1] += indent

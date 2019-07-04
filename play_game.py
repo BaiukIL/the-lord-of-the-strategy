@@ -12,11 +12,13 @@ import user_configs
 import image as img
 
 
-def clear_callback(surf, rect):
+def _clear_callback(surf, rect):
     surf.fill(map.Map().color, rect)
 
 
 def finish_game(win: bool, screen: pygame.Surface):
+    """ Called when game is finished. """
+
     if win:
         pygame.draw.rect(screen, pygame.Color('yellow'), screen.get_rect())
         final_message = 'You win!'
@@ -42,7 +44,9 @@ def finish_game(win: bool, screen: pygame.Surface):
 
 
 def play_game():
-    # pygame initialization start
+    """ Function which starts the game. """
+
+    # pygame initialization starts.
     pygame.init()
     screen = pygame.display.set_mode(configs.SCR_SIZE)
     pygame.display.set_caption("the Lord of the Strategy")
@@ -52,9 +56,9 @@ def play_game():
 
     if not pygame.font.get_init():
         raise SystemExit("Fonts are out-of-service")
-    # pygame initialization finish
+    # pygame initialization finishes.
 
-    # game objects initialization start
+    # Game objects initialization starts.
     player_empire = empire.Empire(user_configs.EMPIRE_RACE, name=user_configs.EMPIRE_NAME)
     enemy_empire = empire.Empire(races.DWARFS, name='Durden')
 
@@ -71,9 +75,11 @@ def play_game():
     enemy_default_city.rect.right = map.Map().rect.right - 700
     enemy_default_city.rect.centery = map.Map().rect.centery
     AI(enemy_empire)
-    # game objects initialization finish
+    # Game objects initialization finishes.
 
+    # `rendered` is a group of objects has been drawn on map last loop iteration.
     rendered = None
+
     while True:
         mouse_pressed = False
 
@@ -91,24 +97,27 @@ def play_game():
         if mouse_pressed:
             click_handler.handle_click(mouse_pos)
 
-        # AI is singleton, which has initialized before
+        # AI is singleton, which has been initialized before.
         AI().play_step()
 
-        # If any of empires is out of cities, finish the game
+        # If any of empires is out of cities, the game is finished.
         if not player_empire.alive() or not enemy_empire.alive():
             finish_game(win=player_empire.alive(), screen=screen)
-            break
+            return
 
         interface.move_view(key, mouse_pos)
-        # place objects on map
+        # Place objects on map.
         if rendered is not None:
-            game.objects.clear(map.Map().image, clear_callback)
+            game.objects.clear(map.Map().image, _clear_callback)
+        # Update objects.
         game.objects.update()
+        # Update the group of last drawn objects.
         rendered = game.objects.draw(map.Map().image)
         interface.draw_interface(screen)
-        # show screen
+
+        # Show screen.
         pygame.display.flip()
-        # cap the framerate
+        # Cap the framerate.
         clock.tick(50)
 
 

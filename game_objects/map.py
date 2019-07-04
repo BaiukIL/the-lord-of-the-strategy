@@ -5,6 +5,7 @@ import singleton
 
 
 class Map(pygame.sprite.Sprite, metaclass=singleton.Singleton):
+    """ Map is a field where all game objects are located. """
 
     image: pygame.Surface
     rect: pygame.Rect
@@ -15,6 +16,4 @@ class Map(pygame.sprite.Sprite, metaclass=singleton.Singleton):
         self.image = pygame.Surface(configs.MAP_SIZE)
         self.image.fill(self.color)
         self.rect = self.image.get_rect()
-
-    def clear(self):
-        self.image.fill(self.color)
+        
