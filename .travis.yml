@@ -1,0 +1,8 @@
+language: python
+script:
+    - python -m unittest discover
+notifications:
+  email:
+    recipients:
+      - baiuk.is@phystech.edu
+    on_success: never
