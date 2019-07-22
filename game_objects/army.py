@@ -1,12 +1,14 @@
-"""Composite & Iterator & Visitor"""
+""" This module contains `Army` which s responsible for units hierarchy. """
 
-from game_objects.units import unit as unit_mod
+
 import collections
 from abc import ABC, abstractmethod
+from game_objects.units import unit as unit_mod
 
+# Army is based on wide-spread Composite & Iterator & Visitor pattern.
 
+# Composite.
 class ArmyComponent(ABC):
-    """Composite"""
 
     _parent: 'ArmyComponent'
 
@@ -31,6 +33,7 @@ class ArmyComponent(ABC):
 
 
 class ArmyComposite(ArmyComponent):
+
     _groups: list
 
     def __init__(self):
@@ -67,8 +70,8 @@ class ArmyLeaf(ArmyComponent):
         return False
 
 
+# Iterator.
 class ArmyIterator(collections.abc.Iterator):
-    """Iterator"""
 
     _queue: collections.deque
     _position: ArmyComponent
@@ -88,8 +91,9 @@ class ArmyIterator(collections.abc.Iterator):
         return self._position
 
 
+# Visitor.
 class Army:
-    """Visitor"""
+    """ Army rules with units and lets to group them in troops. """
 
     def __init__(self, empire):
         self.empire = empire

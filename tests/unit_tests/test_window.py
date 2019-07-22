@@ -1,6 +1,6 @@
 import unittest
 import pygame
-from interface import window
+import window
 import configs
 
 
@@ -42,7 +42,7 @@ class TestWindow(unittest.TestCase):
 
     def test_image(self):
         img = self.window.real_image
-        self.window.set_temporary_image(pygame.Surface((100, 100)), delay=3)
+        self.window.set_tmp_image(pygame.Surface((100, 100)), delay=3)
         self.assertNotEqual(self.window.image, self.window.real_image)
         self.assertNotEqual(self.window.image, img)
         self.window.clear()

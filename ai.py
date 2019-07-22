@@ -1,5 +1,8 @@
-import pygame
+""" This module contains `AI` - artificial player. """
+
+
 import time
+import pygame
 # project modules #
 import game
 import singleton
@@ -7,6 +10,8 @@ import exceptions
 
 
 class AI(metaclass=singleton.Singleton):
+    """ Artificial player. Now it imitates enemy. """
+
     def __init__(self, empire, create_delay: float = 2):
         self.empire = empire
         for city in self.empire.cities:
@@ -17,13 +22,17 @@ class AI(metaclass=singleton.Singleton):
         self.warriors = pygame.sprite.Group()
         self._create_delay = create_delay
         self._previous_unit_creation = 0
-        self.init()
+        self.create_buildings()
 
-    def init(self):
-        self.mines.add(self.main_city.build_mine(self.main_city.rect.move(0, -3*self.main_city.rect.width).center))
-        self.mines.add(self.main_city.build_mine(self.main_city.rect.move(0, 3*self.main_city.rect.width).center))
-        self.mines.add(self.main_city.build_mine(self.main_city.rect.move(3*self.main_city.rect.width, 0).center))
-        self.barracks.add(self.main_city.build_barrack(self.main_city.rect.move(-3*self.main_city.rect.width, 0).center))
+    def create_buildings(self):
+        self.mines.add(self.main_city.build_mine(
+            self.main_city.rect.move(0, -3*self.main_city.rect.width).center))
+        self.mines.add(self.main_city.build_mine(
+            self.main_city.rect.move(0, 3*self.main_city.rect.width).center))
+        self.mines.add(self.main_city.build_mine(
+            self.main_city.rect.move(3*self.main_city.rect.width, 0).center))
+        self.barracks.add(self.main_city.build_barrack(
+            self.main_city.rect.move(-3*self.main_city.rect.width, 0).center))
 
     def play_step(self):
         try:

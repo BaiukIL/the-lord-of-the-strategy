@@ -1,9 +1,12 @@
+""" This module contains `Interface` - a facade which manages interface windows work. """
+
+
 from typing import Tuple
 import pygame
 # project modules #
-from interface import empire_info, button, camera, minimap, selected_object_info, selected_object, selected_command
-from game_objects import map
-import configs
+from interface import camera, minimap, button
+from interface import empire_info, selected_object_info, selected_object, selected_command
+from interface import interface_configs as configs
 import singleton
 
 
@@ -13,19 +16,20 @@ def get_global_mouse_pos(mouse_pos: Tuple[int, int]) -> Tuple[int, int]:
 
 
 class Interface(metaclass=singleton.Singleton):
-    """ Interface is a facade which manages interface windows work. """
+    """ A facade which manages interface windows work. """
 
     def __init__(self, player_empire, enemy_empire):
         self.player_empire = player_empire
         self.camera = camera.Camera()
-        self.selected_info = selected_object_info.Selected()
+        self.selected_info = selected_object_info.SelectedInfo()
         self.minimap = minimap.Minimap()
         self.commands = pygame.sprite.Group()
         self.messages = pygame.sprite.Group()
-        self.player_empire_info = empire_info.EmpireInfo(player_empire, enemy=False)
-        self.enemy_empire_info = empire_info.EmpireInfo(enemy_empire, enemy=True)
-        # The most recent chosen (selected) game object
-        # and command respectively.
+        self.player_empire_info = empire_info.EmpireInfo(
+            player_empire, enemy=False)
+        self.enemy_empire_info = empire_info.EmpireInfo(
+            enemy_empire, enemy=True)
+        # The most recent chosen (selected) game object and command respectively.
         self.selected_object = selected_object.SelectedObject()
         self.selected_command = selected_command.SelectedCommand()
 
@@ -80,17 +84,14 @@ class Interface(metaclass=singleton.Singleton):
         self.selected_object.replace(obj)
         self.selected_command.clear()
         self.commands.empty()
-        # If given object belongs to player's empire,
-        # let work with it. Otherwise do not show commands.
+        # If given object belongs to player's empire, let work with it.
+        # Otherwise do not show commands.
         if obj.empire is self.player_empire:
             self._place_commands(obj)
 
     def draw_interface(self, screen: pygame.Surface):
-        """ Draws interface windows on `screen`. """
+        """ Draws interface windows onto `screen`. """
 
-        # make place of camera location visible
-        screen.blit(map.Map().image, (-self.camera.x, -self.camera.y))
-        # draw interface windows
         self.selected_info.update()
         screen.blit(self.selected_info.image, self.selected_info.rect)
         self.minimap.update()
@@ -104,7 +105,7 @@ class Interface(metaclass=singleton.Singleton):
         self.enemy_empire_info.draw(screen)
 
     def _place_commands(self, obj):
-        """ Fill `self.commands`. """
+        """ Fills `self.commands` with commands of `obj`. """
 
         pos = [self.selected_info.rect.right + configs.SELECTED_TO_COMMAND_INDENT,
                configs.SCR_HEIGHT - configs.COMMAND_HEIGHT - 10]

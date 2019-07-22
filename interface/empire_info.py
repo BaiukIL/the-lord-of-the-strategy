@@ -1,7 +1,10 @@
+""" This module contains `EmpireInfo` - a window that shows empire info. """
+
+
 import pygame
 # project modules #
 from windows import window
-import configs
+from interface import interface_configs as configs
 
 
 class EmpireInfo:
@@ -9,9 +12,9 @@ class EmpireInfo:
 
     def __init__(self, empire, enemy: bool):
         self.empire = empire
-        self.empire_icon = window.Window(size=(100, 100), image=empire.icon)
+        self.empire_icon = window.Window(empire.icon)
         self.empire_icon.set_default_alpha(170)
-        self.resources = window.Window((220, 50))
+        self.resources = window.Window(pygame.Surface((220, 50), pygame.SRCALPHA))
         self.resources.set_default_alpha(170)
         if enemy:
             self.empire_icon.rect.topright = configs.SCR_WIDTH, 0
@@ -27,5 +30,6 @@ class EmpireInfo:
             font.render(f'Resources: {self.empire.resources}', True, pygame.Color('black')), (0, 0))
 
     def draw(self, screen: pygame.Surface):
+        """ Draws empire info-window onto the screen. """
         screen.blit(self.empire_icon.image, self.empire_icon.rect)
         screen.blit(self.resources.image, self.resources.rect)

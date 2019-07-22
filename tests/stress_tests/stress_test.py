@@ -5,7 +5,7 @@ in root project directory because it's impossible to import upper level modules"
 import pygame
 # project modules #
 from game import Game
-from game_objects import empire, races, map
+from game_objects import empire, races, world_map
 from tests.stress_tests.stress_AI import StressAI
 from interface.interface import Interface, get_global_mouse_pos
 import configs
@@ -14,7 +14,7 @@ import image as img
 
 
 def clear_callback(surf, rect):
-    surf.fill(map.Map().color, rect)
+    surf.fill(world_map.Map().color, rect)
 
 
 def play_game():
@@ -40,12 +40,12 @@ def play_game():
     player_empire.set_city("Nevborn")
     player_default_city = player_empire.get_city("Nevborn")
     player_default_city.rect.x = 500
-    player_default_city.rect.centery = map.Map().rect.centery
+    player_default_city.rect.centery = world_map.Map().rect.centery
 
     enemy_empire.set_city("Nuhen")
     enemy_default_city = enemy_empire.get_city("Nuhen")
-    enemy_default_city.rect.right = map.Map().rect.right - 700
-    enemy_default_city.rect.centery = map.Map().rect.centery
+    enemy_default_city.rect.right = world_map.Map().rect.right - 700
+    enemy_default_city.rect.centery = world_map.Map().rect.centery
     StressAI(enemy_empire)
     # game objects initialization start
 
@@ -67,7 +67,7 @@ def play_game():
         if mouse_pressed:
             handled = False
             # check if any of interface windows can handle click
-            if interface.handle_click(mouse_pos):
+            if interface.handle_interface_click(mouse_pos):
                 handled = True
             else:
                 for obj in game.objects:
@@ -87,9 +87,9 @@ def play_game():
         interface.move_view(key, mouse_pos)
         # place objects on map
         if rendered is not None:
-            game.objects.clear(map.Map().image, clear_callback)
+            game.objects.clear(world_map.Map().image, clear_callback)
         game.objects.update()
-        rendered = game.objects.draw(map.Map().image)
+        rendered = game.objects.draw(world_map.Map().image)
         interface.draw_interface(screen)
         # show screen
         pygame.display.flip()

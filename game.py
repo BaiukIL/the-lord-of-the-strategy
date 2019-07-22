@@ -1,10 +1,13 @@
+""" This module contains `Game` singleton which links game entities and represents game states. """
+
+
 import pygame
 # project modules #
 import singleton
 
 
 class Game(metaclass=singleton.Singleton):
-    """ Game is a mediator which links empires and interface. """
+    """ A mediator which links game entities and represents game states (play, menu, etc.). """
 
     objects = pygame.sprite.RenderUpdates()
 

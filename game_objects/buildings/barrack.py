@@ -1,51 +1,64 @@
-import pygame
+""" This module contains `Barrack` - a units factory. """
+
+
 import time
 from abc import ABC, abstractmethod
 from typing import Tuple, List, Callable, Text
+import pygame
 # project modules #
-from game_objects.buildings import base_building
-from game_objects.units import builder, warrior, scout
 import exceptions
 import image as img
+from game_objects import game_objects_configs as configs
+from game_objects.buildings import base_building
+from game_objects.units import builder, warrior, scout
 
 
+# Factory & Template Method.
 class Barrack(base_building.Building, ABC):
-    """Factory & Template Method"""
+    """ Factory of units in the game. """
 
+    # These methods are public and call more specific hidden methods.
     def create_builder(self):
-        size = 90, 90
-        rect = self._get_unit_rect(size)
+        """ Creates and returns builder. """
+
+        rect = self._get_unit_rect(configs.BUILDER_SIZE)
         self._assert_creation_place_is_free(rect)
-        unit = self._create_builder(size=size)
+        unit = self._create_builder(size=configs.BUILDER_SIZE)
         self._action_after_unit_creation(unit, rect)
         return unit
 
     def create_scout(self):
-        size = 90, 90
-        rect = self._get_unit_rect(size)
+        """ Creates and returns scout. """
+
+        rect = self._get_unit_rect(configs.SCOUT_SIZE)
         self._assert_creation_place_is_free(rect)
-        unit = self._create_scout(size=size)
+        unit = self._create_scout(size=configs.SCOUT_SIZE)
         self._action_after_unit_creation(unit, rect)
         return unit
 
     def create_warrior(self):
-        size = 90, 90
-        rect = self._get_unit_rect(size)
+        """ Creates and returns warrior. """
+
+        rect = self._get_unit_rect(configs.WARRIOR_SIZE)
         self._assert_creation_place_is_free(rect)
-        unit = self._create_warrior(size=size)
+        unit = self._create_warrior(size=configs.WARRIOR_SIZE)
         self._action_after_unit_creation(unit, rect)
         return unit
 
+    # These methods are hidden and overridden in inheritors.
+    # They take `size` as argument to avoid unnecessary copies.
+    # (Builders of any race, for example, have identical size, so
+    # it is a good idea to set size in more general `create_builder` method)
     @abstractmethod
-    def _create_builder(self, size: Tuple[int, int]) -> builder.Builder: 
+    def _create_builder(self, size: Tuple[int, int]) -> builder.Builder:
         pass
 
     @abstractmethod
-    def _create_scout(self, size: Tuple[int, int]) -> scout.Scout: 
+    def _create_scout(self, size: Tuple[int, int]) -> scout.Scout:
         pass
 
     @abstractmethod
-    def _create_warrior(self, size: Tuple[int, int]) -> warrior.Warrior: 
+    def _create_warrior(self, size: Tuple[int, int]) -> warrior.Warrior:
         pass
 
     def _get_unit_rect(self, size: Tuple[int, int]) -> pygame.Rect:
@@ -54,18 +67,12 @@ class Barrack(base_building.Building, ABC):
         rect.top = self.rect.bottom + 20
         return rect
 
-    def _assert_delay_is_over(self, delay: int, last_call_time: float):
-        difference = time.time() - last_call_time
-        if difference < delay:
-            raise exceptions.CreationTimeError(
-                "Can't create unit - not enough time's passed since previous call.\nTime remained: {}".format(
-                    difference))
-
     def _assert_creation_place_is_free(self, rect: pygame.Rect):
         sprite = pygame.sprite.Sprite()
         sprite.rect = rect
         if pygame.sprite.spritecollideany(sprite, self._all_objects):
-            raise exceptions.CreationPlaceError("Can't create unit - place is occupied")
+            raise exceptions.CreationPlaceError(
+                "Can't create unit - place is occupied")
 
     def _action_after_unit_creation(self, unit, rect: pygame.Rect):
         self.empire.army.recruit_unit(unit=unit)
@@ -83,89 +90,40 @@ class Barrack(base_building.Building, ABC):
 
 class ElvesBarrack(Barrack):
     def _create_builder(self, size: Tuple[int, int]) -> builder.Builder:
-        return builder.ElfBuilder(empire=self.empire,
-                                  health=2,
-                                  speed=12,
-                                  cost=5,
-                                  image=img.get_image(self.empire).BUILDER,
-                                  size=size)
+        return builder.ElfBuilder(empire=self.empire)
 
     def _create_scout(self, size: Tuple[int, int]) -> scout.Scout:
-        return scout.ElfScout(empire=self.empire,
-                              health=3,
-                              speed=12,
-                              damage=1,
-                              fight_distance=500,
-                              cost=8,
-                              image=img.get_image(self.empire).SCOUT,
-                              size=size)
+        return scout.ElfScout(empire=self.empire)
 
     def _create_warrior(self, size: Tuple[int, int]) -> warrior.Warrior:
-        return warrior.ElfWarrior(empire=self.empire,
-                                  health=5,
-                                  speed=6,
-                                  damage=2,
-                                  fight_distance=180,
-                                  cost=10,
-                                  image=img.get_image(self.empire).WARRIOR,
-                                  size=size)
+        return warrior.ElfWarrior(empire=self.empire)
 
 
 class OrcsBarrack(Barrack):
     def _create_builder(self, size: Tuple[int, int]) -> builder.Builder:
-        return builder.OrcBuilder(empire=self.empire,
-                                  health=2,
-                                  speed=6,
-                                  cost=5,
-                                  image=img.get_image(self.empire).BUILDER,
-                                  size=size)
+        return builder.OrcBuilder(empire=self.empire)
 
     def _create_scout(self, size: Tuple[int, int]) -> scout.Scout:
-        return scout.OrcScout(empire=self.empire,
-                              health=3,
-                              speed=6,
-                              damage=2,
-                              fight_distance=400,
-                              cost=8,
-                              image=img.get_image(self.empire).SCOUT,
-                              size=size)
+        return scout.OrcScout(empire=self.empire)
 
     def _create_warrior(self, size: Tuple[int, int]) -> warrior.Warrior:
-        return warrior.OrcWarrior(empire=self.empire,
-                                  health=5,
-                                  speed=3,
-                                  damage=4,
-                                  fight_distance=180,
-                                  cost=10,
-                                  image=img.get_image(self.empire).WARRIOR,
-                                  size=size)
+        return warrior.OrcWarrior(empire=self.empire)
 
 
 class DwarfsBarrack(Barrack):
     def _create_builder(self, size: Tuple[int, int]) -> builder.Builder:
-        return builder.DwarfBuilder(empire=self.empire,
-                                    health=4,
-                                    speed=6,
-                                    cost=5,
-                                    image=img.get_image(self.empire).BUILDER,
-                                    size=size)
+        return builder.DwarfBuilder(empire=self.empire)
 
     def _create_scout(self, size: Tuple[int, int]) -> scout.Scout:
-        return scout.DwarfScout(empire=self.empire,
-                                health=6,
-                                speed=6,
-                                damage=1,
-                                fight_distance=400,
-                                cost=8,
-                                image=img.get_image(self.empire).SCOUT,
-                                size=size)
+        return scout.DwarfScout(empire=self.empire)
 
     def _create_warrior(self, size: Tuple[int, int]) -> warrior.Warrior:
-        return warrior.DwarfWarrior(empire=self.empire,
-                                    health=10,
-                                    speed=3,
-                                    damage=2,
-                                    fight_distance=180,
-                                    cost=10,
-                                    image=img.get_image(self.empire).WARRIOR,
-                                    size=size)
+        return warrior.DwarfWarrior(empire=self.empire)
+
+
+def _assert_delay_is_over(delay: float, last_call_time: float):
+    difference = time.time() - last_call_time
+    if difference < delay:
+        raise exceptions.CreationTimeError(
+            f"Can't create unit - not enough time's passed since previous call. \
+            \nTime remained: {difference}")

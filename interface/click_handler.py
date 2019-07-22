@@ -1,8 +1,11 @@
+""" Temporary solution. """
+
+
 from typing import Tuple
 # project modules #
 import singleton
 from game import Game
-from interface.interface import Interface
+from interface.interface_class import Interface
 
 
 def get_global_mouse_pos(mouse_pos: Tuple[int, int]) -> Tuple[int, int]:
@@ -24,7 +27,7 @@ def handle_click(mouse_pos: Tuple[int, int]):
         Interface().handle_empty_click(mouse_pos)
 
 
-# it's a class because it will have field connected with empires
+# It's a class because it will have field connected with empires/
 class ClickHandler(metaclass=singleton.Singleton):
     @staticmethod
     def handle_object_first_click(obj):

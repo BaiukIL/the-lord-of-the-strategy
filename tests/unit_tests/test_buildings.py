@@ -37,7 +37,7 @@ class TestBarrack(unittest.TestCase):
 
     def test_create_warrior(self):
         warrior_ = self.barrack.create_scout()
-        self.assertTrue(isinstance(warrior_, warrior.Warrior))
+        self.assertTrue(isinstance(warrior_, warrior.AttackUnit))
         self.assertTrue(warrior_.cost, 10)
         self.assertTrue(warrior_.health, 5)
         self.assertTrue(warrior_.damage, 4)

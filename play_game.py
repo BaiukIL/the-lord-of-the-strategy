@@ -1,23 +1,44 @@
+""" This module starts the game.
+To start one, put `python3 play_game.py` in terminal. """
+
+
 import os
 import sys
 import pygame
 # project modules #
-from game import Game
-from game_objects import empire, races, map
-from AI import AI
-from interface.interface import Interface
-from interface import click_handler
-import configs
 import user_configs
+import game_configs as configs
+from game import Game
+from game_objects import races
+from game_objects.empire import Empire
+from world_map import Map
+from ai import AI
+from interface.interface_class import Interface
+from interface import click_handler
+from display import Display
 import image as img
 
 
-def _clear_callback(surf, rect):
-    surf.fill(map.Map().color, rect)
+def place_objects_on_display():
+    """ Finds what objects can be displayed onto the screen and displays them. """
+    for obj in pygame.sprite.spritecollide(Display(), Game().objects, False):
+        Display().image.blit(obj.image, (obj.rect.x -
+                                         Interface().camera.x, obj.rect.y - Interface().camera.y))
+
+
+def _wait_for_command():
+    """ Is called when game has finished. """
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return
+            if event.type == pygame.KEYDOWN:
+                os.execl(sys.executable, sys.executable, *sys.argv)
 
 
 def finish_game(win: bool, screen: pygame.Surface):
-    """ Called when game is finished. """
+    """ Is called when game is finished. """
 
     if win:
         pygame.draw.rect(screen, pygame.Color('yellow'), screen.get_rect())
@@ -25,60 +46,46 @@ def finish_game(win: bool, screen: pygame.Surface):
     else:
         pygame.draw.rect(screen, pygame.Color('red'), screen.get_rect())
         final_message = 'You lost...'
+    # Set font.
     font = pygame.font.SysFont(name='Ani', size=100)
+    # Place messages.
     screen.blit(font.render(final_message, True, pygame.Color('black')),
                 (screen.get_width() // 3 + 80, screen.get_height() // 5))
-    screen.blit(font.render('To restart the game, press Space.', True, pygame.Color('black')),
-                (screen.get_width() // 6, screen.get_height() // 4 + 150))
     screen.blit(font.render('To exit, press ESC.', True, pygame.Color('black')),
+                (screen.get_width() // 6, screen.get_height() // 4 + 150))
+    screen.blit(font.render('To restart the game, press any other button.', True, pygame.Color('black')),
                 (screen.get_width() // 4 + 30, screen.get_height() // 4 + 300))
+    # Display changes.
+    pygame.display.update()
 
-    pygame.display.flip()
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                os.execl(sys.executable, sys.executable, *sys.argv)
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                return
+    _wait_for_command()
 
 
 def play_game():
-    """ Function which starts the game. """
-
-    # pygame initialization starts.
-    pygame.init()
-    screen = pygame.display.set_mode(configs.SCR_SIZE)
-    pygame.display.set_caption("the Lord of the Strategy")
-    icon_surf = img.get_image().ICON
-    pygame.display.set_icon(icon_surf)
-    clock = pygame.time.Clock()
-
-    if not pygame.font.get_init():
-        raise SystemExit("Fonts are out-of-service")
-    # pygame initialization finishes.
+    """ Starts the game. """
 
     # Game objects initialization starts.
-    player_empire = empire.Empire(user_configs.EMPIRE_RACE, name=user_configs.EMPIRE_NAME)
-    enemy_empire = empire.Empire(races.DWARFS, name='Durden')
+    player_empire = Empire(user_configs.EMPIRE_RACE,
+                           name=user_configs.EMPIRE_NAME)
+    enemy_empire = Empire(races.DWARFS, name='Durden')
 
-    game = Game(player_empire, enemy_empire)
-    interface = Interface(player_empire, enemy_empire)
+    # Initialize game singletons.
+    Game(player_empire, enemy_empire)
+    Interface(player_empire, enemy_empire)
+    Display(SCREEN)
 
     player_empire.set_city(user_configs.CITY_NAME)
     player_default_city = player_empire.get_city(user_configs.CITY_NAME)
     player_default_city.rect.x = 500
-    player_default_city.rect.centery = map.Map().rect.centery
+    player_default_city.rect.centery = Map().rect.centery
 
     enemy_empire.set_city("Nuhen")
     enemy_default_city = enemy_empire.get_city("Nuhen")
-    enemy_default_city.rect.right = map.Map().rect.right - 700
-    enemy_default_city.rect.centery = map.Map().rect.centery
-    AI(enemy_empire)
-    # Game objects initialization finishes.
+    enemy_default_city.rect.right = Map().rect.right - 700
+    enemy_default_city.rect.centery = Map().rect.centery
 
-    # `rendered` is a group of objects has been drawn on map last loop iteration.
-    rendered = None
+    AI(enemy_empire)
+    # Game objects initialization ends.
 
     while True:
         mouse_pressed = False
@@ -102,24 +109,42 @@ def play_game():
 
         # If any of empires is out of cities, the game is finished.
         if not player_empire.alive() or not enemy_empire.alive():
-            finish_game(win=player_empire.alive(), screen=screen)
+            finish_game(win=player_empire.alive(), screen=SCREEN)
             return
 
-        interface.move_view(key, mouse_pos)
-        # Place objects on map.
-        if rendered is not None:
-            game.objects.clear(map.Map().image, _clear_callback)
+        Interface().move_view(key, mouse_pos)
         # Update objects.
-        game.objects.update()
-        # Update the group of last drawn objects.
-        rendered = game.objects.draw(map.Map().image)
-        interface.draw_interface(screen)
+        # It looks weird, but use Game().objects.update() causes an error in
+        # specific case: if one of objects is killed during `update`, its `update`
+        # method is still called. It happens because Game().objects.update() updates
+        # ALL sprites which are contained in Game().objects at the moment of
+        # Game().objects.update() is called.
+        for obj in Game().objects:
+            if obj in Game().objects:
+                obj.update()
+        # Make place of camera location visible.
+        SCREEN.blit(Map().image, (-Interface().camera.x, -Interface().camera.y))
+
+        place_objects_on_display()
+
+        Interface().draw_interface(SCREEN)
 
         # Show screen.
-        pygame.display.flip()
+        pygame.display.update()
         # Cap the framerate.
-        clock.tick(50)
+        CLOCK.tick(50)
 
 
 if __name__ == '__main__':
+    # pygame initialization.
+    pygame.init()
+    tmp = pygame.display.set_mode(configs.SCR_SIZE)
+    pygame.display.set_caption("the Lord of the Strategy")
+    pygame.display.set_icon(img.get_image().ICON)
+    if not pygame.font.get_init():
+        raise SystemExit("Fonts are out-of-service")
+    # Global variables initilization.
+    SCREEN = tmp
+    CLOCK = pygame.time.Clock()
+
     play_game()
